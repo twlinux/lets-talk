@@ -1,0 +1,47 @@
+body {
+    --sidenavWidth: 360px;
+}
+
+/* sidenav */
+
+.side-nav {
+    width: var(--sidenavWidth);
+}
+
+header, main, footer {
+    padding-left: var(--sidenavWidth);
+}
+
+@media only screen and (max-width : 992px) {
+    header, main, footer {
+        padding-left: 0;
+    }
+}
+
+li#avatar-container {
+    text-align: center;
+}
+
+li#avatar-container > * {
+    display: inline-block;
+    font-size: 200px;
+    width: 200px;
+    color: grey;
+    
+}
+
+#user-title {
+    margin-left: 10px;
+}
+
+/* push footer to bottom */
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}

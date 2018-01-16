@@ -1,0 +1,79 @@
+<!-- 
+    The 'Add user' section uses HTML5 form validation.
+    Client-side validation is inherently insecure, because
+    requests can be forged with relative ease.
+    Server back-end logic is responsible for preventing malicious input.
+-->
+
+<style type="text/css">
+    #user-form .input-field {
+        width: 300px;
+    }
+
+    #user-form form {
+        text-align: right;
+    }
+
+    #user-form .btn {
+        margin-right: 30px;
+        margin-bottom: 4px;
+    }
+
+    #user-form center,
+    #user-form center input {
+        padding-top: 10px;
+    }
+
+    .character-counter {
+        line-height: 0%;
+    }
+</style>
+
+<ul class="collapsible popout" data-collapsible="accordion">
+    <li>
+        <div class="collapsible-header active">
+            <i class="material-icons">person</i>Log In</div>
+        <div class="collapsible-body">
+            <form action="/login" method="post">
+                <center>
+                    <div class="input-field">
+                        <input id="username" type="text" class="validate" name="username" required autofocus autocomplete="username">
+                        <label for="username">User name</label>
+                    </div>
+
+                    <div class="input-field">
+                        <input id="password" type="password" class="validate" name="pass" required autocomplete="current-password">
+                        <label for="password">Password</label>
+                    </div>
+                </center>
+                <input type="submit" class="waves-effect waves-light btn"></input>
+            </form>
+        </div>
+    </li>
+
+
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">person_add</i>New User</div>
+        <div class="collapsible-body">
+            <form action="/newuser" method="post" id="createuser-form">
+                <center>
+                    <div class="input-field">
+                        <input id="create-name" type="text" name="username" class="validate" required autocomplete="name" pattern="[a-zA-Z ]+" data-length="32">
+                        <label for="create-name" data-error="Letters and spaces only!">User name</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="create-password" type="password" name="pass" class="validate" required autocomplete="new-password"
+                            pattern="[^'\x22]+">
+                        <label for="create-password" data-error="Please no quotation marks :(">Password</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="retype-password" type="password" class="validate" required autocomplete="new-password">
+                        <label for="retype-password" data-error="Passwords must match.">Retype password</label>
+                    </div>
+                </center>
+                <input type="submit" class="waves-effect waves-light btn">
+            </form>
+        </div>
+    </li>
+</ul>

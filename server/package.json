@@ -1,0 +1,35 @@
+{
+  "name": "lets-talk",
+  "version": "1.0.0",
+  "description": "Terrible web forum that demonstrates SQLi and XSS",
+  "main": "server.js",
+  "scripts": {
+    "test": "PORT=8080 node server.js",
+    "start": "PORT=80 node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/twlinux/lets-talk.git"
+  },
+  "author": "Jennings Zhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/twlinux/lets-talk/issues"
+  },
+  "homepage": "https://twlinux.github.io/",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "colors": "^1.1.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.2",
+    "ip": "^1.1.5",
+    "jquery": "^3.2.1",
+    "material-design-icons": "^3.0.1",
+    "materialize-css": "^0.100.2",
+    "mysql": "^2.15.0",
+    "node-env-file": "^0.1.8"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  }
+}

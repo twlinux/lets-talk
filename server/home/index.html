@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Let's Talk!</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" href="/vendor/material-icons.css" />
+    <link rel="stylesheet" type="text/css" href="/vendor/materialize.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <script type="text/javascript" src="/vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="/vendor/materialize.min.js"></script>
+    <script type="text/javascript" src="/js/home.js"></script>
+</head>
+
+<body>
+
+    <ul id="slide-out" class="side-nav fixed">
+        <li id="avatar-container">
+            <img src="/assets/smile.svg" width="200px" />
+        </li>
+        <li id="user-title">
+            <h3>Welcome.</h3>
+        </li>
+        
+        <div id="user-form">
+        </div>
+    </ul>
+
+    <header>
+        <nav>
+            <div class="nav-wrapper indigo accent-1">
+                <a class="brand-logo center">Let's Talk!</a>
+                <a href="#" data-activates="slide-out" class="button-collapse">
+                    <i class="material-icons">menu</i>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <noscript>
+            <h1 style="color: red;">This site requires Javascript.</h1>
+        </noscript>
+        <div id="app">
+        </div>
+    </main>
+
+    <footer class="page-footer indigo accent-1">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">Let's Talk!</h5>
+                    <p class="grey-text text-lighten-4">
+                        <em>Insecurity</em> kills more dreams than failure ever will.</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <h5 class="white-text">Links</h5>
+                    <ul>
+                        <li>
+                            <a class="grey-text text-lighten-3" href="https://twlinux.github.io/">Wootton Red Team</a>
+                        </li>
+                        <li>
+                            <a class="grey-text text-lighten-3" href="https://en.wikipedia.org/wiki/SQL_injection">SQLi (Wikipedia)</a>
+                        </li>
+                        <li>
+                            <a class="grey-text text-lighten-3" href="https://en.wikipedia.org/wiki/Cross-site_scripting">XSS (Wikipedia)</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © 2018 Jennings Zhang
+                <a class="grey-text text-lighten-4 right" href="https://github.com/twlinux/lets-talk/blob/master/LICENSE">MIT License</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

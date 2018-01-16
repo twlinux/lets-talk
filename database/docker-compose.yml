@@ -1,0 +1,19 @@
+version: '3.2'
+services:
+  database:
+    container_name: talk-db
+    image: mysql/mysql-server:latest             # image to start container from
+    env_file: variables.env                      # MySQL initial configurations
+    ports:
+      - "3306:3306"
+    volumes:
+      - type: bind
+        source: ./my.cnf
+        target: /etc/my.cnf
+      - type: bind
+        source: ./sql/
+        target: /var/lib/mysql
+      - type: bind
+        source: ./scripts/
+        target: /docker-entrypoint-initdb.d/     # post-creation .sh or .sql scripts
+
