@@ -17,3 +17,4 @@ services:
         source: ./scripts/
         target: /docker-entrypoint-initdb.d/     # post-creation .sh or .sql scripts
 
+# docker exec -it talk-db mysql -uroot -p

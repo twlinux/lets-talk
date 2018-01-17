@@ -2,8 +2,4 @@
 # It's foolish to push passwords and database structure information for serious projects.
 # It doesn't really matter for this case. This project's purpose is to be hacked.
 
-sample table.ods
-scripts
 sql
-variables.env
-
