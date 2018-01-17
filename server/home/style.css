@@ -1,5 +1,7 @@
 body {
     --sidenavWidth: 360px;
+    --green_lighten-3: #a5d6a7;
+    --green_lighten-1: #66bb6a;
 }
 
 /* sidenav */
@@ -20,6 +22,8 @@ header, main, footer {
 
 li#avatar-container {
     text-align: center;
+    line-height: 0%;
+    background: linear-gradient(to bottom, var(--green_lighten-3) 1%, transparent 100%);
 }
 
 li#avatar-container > * {
@@ -31,8 +35,39 @@ li#avatar-container > * {
 }
 
 #user-title {
-    margin-left: 10px;
+    margin-left: 20px;
 }
+
+/* form colors */
+
+/* label focus color */
+body .input-field input[type=text]:focus + label {
+    color: var(--green_lighten-1) !important;
+}
+  /* label underline focus color */
+body .input-field input[type=text]:focus {
+    border-bottom: 1px solid var(--green_lighten-1) !important;
+    box-shadow: 0 1px 0 0 var(--green_lighten-1) !important;
+}
+
+.btn {
+    background-color: var(--green_lighten-1);
+}
+.btn:hover,
+.btn-large:hover {
+    background-color: #43a047;
+}
+
+/* label focus color */
+.input-field input[type=text]:focus + label {
+    color: #000;
+}
+  /* label underline focus color */
+.input-field input[type=text]:focus {
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #000;
+}
+
 
 /* push footer to bottom */
 
