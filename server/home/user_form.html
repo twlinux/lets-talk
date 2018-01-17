@@ -37,7 +37,7 @@
             <form action="/login" method="post">
                 <center>
                     <div class="input-field">
-                        <input id="username" type="text" class="validate" name="username" required autofocus autocomplete="username">
+                        <input id="username" type="text" class="validate" name="name" required autofocus autocomplete="username" data-length="36">
                         <label for="username">User name</label>
                     </div>
 
@@ -59,7 +59,7 @@
             <form action="/newuser" method="post" id="createuser-form">
                 <center>
                     <div class="input-field">
-                        <input id="create-name" type="text" name="username" class="validate" required autocomplete="name" pattern="[a-zA-Z ]+" data-length="32">
+                        <input id="create-name" type="text" name="name" class="validate" required autocomplete="name" pattern="[a-zA-Z ]+" data-length="32">
                         <label for="create-name" data-error="Letters and spaces only!">User name</label>
                     </div>
                     <div class="input-field">
