@@ -11,6 +11,8 @@ app.use('/vendor', express.static('vendor'));
 app.use('/vendor', express.static('node_modules/materialize-css/dist/js'));
 app.use('/vendor', express.static('node_modules/material-design-icons/iconfont'));
 app.use('/vendor', express.static('node_modules/jquery/dist'));
+app.use('/vendor', express.static('node_modules/js-cookie/src'));
+
 
 // connect to MySQL server
 (function () {
@@ -36,14 +38,15 @@ app.use('/vendor', express.static('node_modules/jquery/dist'));
                 if (!req.body) return res.sendStatus(400);
                 res.send(req.body);
             });
-
-            app.use(function (req, res) {
-                res.status(404).end();
-                output(req, colors.dim('not found'), res.statusCode);
-            });
         }
         else
             sqlOK(mysql);
+
+        // 404 handler at the very end
+        app.use(function (req, res) {
+            res.status(404).end();
+            output(req, colors.dim('not found'), res.statusCode);
+        });
     });
 })();
 
@@ -57,12 +60,54 @@ console.log(`Server running at ${colors.underline(url)}`);
  */
 function sqlOK(mysql) {
     console.log(colors.bold(`Connected to ${colors.rainbow('MySQL!')}`));
+
+    /*
+     * Session identification numbers are assigned sequentially. 
+     * This is highly predictable. An attacker can modify their own cookie to
+     * perform session hijacking.
+     */
     var nextSession = 1;
     var allSessions = new Map();
+    const createSession = (name, res) => {
+        allSessions.set(nextSession, name);
+        console.log('Created a session for ' + allSessions.get(nextSession) + ' id is ' + nextSession);
+        res.cookie('session', nextSession);
+        res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
+        return nextSession++;
+    }
 
+    /*
+     * SQLi vulnerability.
+     * The query looks like this: "SELECT [...] AND (Pass=${pass})"
+     * Those parenthesis makes it easy so that you can inject "  ' OR TRUE   "
+     * That will match any password...
+     */
     app.post('/login', bodyParser, function (req, res) {
-        if (!req.body) return res.sendStatus(400);
-        res.send(req.body);
+        if (!req.body || !req.body.name || !req.body.pass)
+            res.sendStatus(400);
+
+        let query = `SELECT User_name AS name FROM People WHERE LOWER(User_name)='${req.body.name.toLowerCase()}' AND (Pass='${req.body.pass}')`;
+
+        mysql.query(query, function (error, results, fields) {
+
+            let outcome = '';
+            if (error) {
+                outcome = error.code.bold.bgRed;
+                res.send(JSON.stringify(error)); // respond with error message
+            }
+            else {
+                if (results.length === 0) {
+                    res.cookie('message', JSON.stringify({ title: 'Invalid Credentials', content: 'Incorrect username and/or password.' }));
+                    outcome = colors.red('Invalid credentials.');
+                }
+                else {
+                    createSession(results[0].name, res);
+                    outcome = colors.green('Logged in!');
+                }
+                res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
+            }
+            dbOutput(`name=${req.body.name} and pass=${req.body.pass}`, outcome);
+        });
     });
 
     /*
@@ -73,39 +118,46 @@ function sqlOK(mysql) {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
 
         // add new user to database
-        mysql.query('INSERT INTO People (Username, Pass) VALUES (?, ?)',
+        mysql.query('INSERT INTO People (User_name, Pass) VALUES (?, ?)',
             [req.body.name, req.body.pass], function (error, results, fields) {
                 if (error) {
                     switch (error.code) {
                         case 'ER_DUP_ENTRY':
-                            res.cookie('message', { title: error.code, content: 'User already exists.' });
+                            res.cookie('message', JSON.stringify({ title: 'Name taken', content: 'A user already exists with that name.' }));
                             res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
                             break;
                         case 'ER_DATA_TOO_LONG':
                             res.sendStatus(400);
                             break;
                         default:
-                            res.sendCode(503);
+                            res.sendStatus(503);
                     }
                     dbOutput(`name=${req.body.name}`, colors.red(error.code));
                 }
-                else {
-                    allSessions.set(nextSession, req.body.name);
-                    res.cookie('sessionID', nextSession);
-                    res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
-                    dbOutput(`name=${req.body.name} and sessionID=${nextSession++}`, colors.green('user created :)'));
-                }
+                else
+                    dbOutput(`name=${req.body.name} and sessionID=${createSession(req.body.name, res)}`, colors.green('user created :)'));
             });
+    });
 
-        const dbOutput = (param, result) => {
-            console.log(`${colors.dim('SQL:')} ${colors.bold(param)} ${result}`)
+    // send the name that corresponds to the request's session cookie
+    app.get('/myname', function (req, res) {
+
+        if (!req.cookies.session)
+            res.sendStatus(403);
+        else {
+            let name = allSessions.get(parseInt(req.cookies.session));
+            if (name)
+                res.send(name);
+            else {
+                res.clearCookie('session');
+                res.sendStatus(500);
+            }
         }
     });
 
-    app.use(function (req, res) {
-        res.status(404).end();
-        output(req, colors.dim('not found'), res.statusCode);
-    });
+    const dbOutput = (param, result) => {
+        console.log(`${colors.dim('SQL:')} ${colors.bold(param)} ${result}`);
+    }
 }
 
 // output(req, `message`, res.statusCode);

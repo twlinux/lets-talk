@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="/style.css" />
     <script type="text/javascript" src="/vendor/jquery.min.js"></script>
     <script type="text/javascript" src="/vendor/materialize.min.js"></script>
+    <script type="text/javascript" src="/vendor/js.cookie.js"></script>
     <script type="text/javascript" src="/js/home.js"></script>
 </head>
 
@@ -19,10 +20,10 @@
 
     <ul id="slide-out" class="side-nav fixed">
         <li id="avatar-container">
-            <img src="/assets/smile.svg" width="200px" />
+            <i class="material-icons">account_circle</i>
         </li>
         <li id="user-title">
-            <h4>Welcome.</h4>
+            <h5 id="greeting">Welcome.</h5>
         </li>
         <div id="user-form"></div>
     </ul>
@@ -37,6 +38,17 @@
             </div>
         </nav>
     </header>
+
+    <!-- Modal Structure -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <h4 id="modal1-title">Title</h4>
+            <p id="modal1-body">text</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">OK</a>
+        </div>
+    </div>
 
     <main>
         <noscript>
