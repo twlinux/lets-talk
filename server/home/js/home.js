@@ -1,3 +1,5 @@
+// TODO jump to top FAB
+
 $(document).ready(function () {
 
     materializeInit();
@@ -35,7 +37,7 @@ function guestMenu() {
     $('#user-form').load('user_form.html', function () {
 
         $('.collapsible').collapsible();
-        $('#create-username, #create-password').characterCounter();
+        $('#create-name').characterCounter();
 
         $('#create-password').keyup(function () {
             $('#retype-password').attr('pattern', $('#create-password').val());

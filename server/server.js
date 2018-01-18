@@ -12,7 +12,10 @@ app.use('/vendor', express.static('node_modules/materialize-css/dist/js'));
 app.use('/vendor', express.static('node_modules/material-design-icons/iconfont'));
 app.use('/vendor', express.static('node_modules/jquery/dist'));
 app.use('/vendor', express.static('node_modules/js-cookie/src'));
-
+app.all('/logout*', function (req, res) {
+    res.clearCookie(cookieKey);
+    res.redirect('/');
+});
 
 // connect to MySQL server
 (function () {
@@ -29,12 +32,7 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
             console.error(colors.bgRed('Cannot connect to MySQL server.'.bold.white));
             console.dir(sql_config);
             console.log(err);
-            app.post('/login', bodyParser, function (req, res) {
-                if (!req.body) return res.sendStatus(400);
-                res.send(req.body);
-            });
-
-            app.post('/newuser', bodyParser, function (req, res) {
+            app.post('/*', bodyParser, function (req, res) {
                 if (!req.body) return res.sendStatus(400);
                 res.send(req.body);
             });
@@ -52,12 +50,12 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
 const port = process.env.PORT || 8080;
 app.listen(port);
-let url = `http://${port == '80' ? `${colors.bold(require('os').hostname())}.local` : `${colors.bold(ip.address())}:${colors.cyan(port.toString())}`}/`;
-console.log(`Server running at ${colors.underline(url)}`);
+(function() {
+    let url = `http://${port == '80' ? `${colors.bold(require('os').hostname())}.local` : `${colors.bold(ip.address())}:${colors.cyan(port.toString())}`}/`;
+    console.log(`Server running at ${colors.underline(url)}`);    
+})();
 
-/*
- * Call this function when connection to MySQL is successful.
- */
+// Call this function when connection to MySQL is successful.
 function sqlOK(mysql) {
     console.log(colors.bold(`Connected to ${colors.rainbow('MySQL!')}`));
 
@@ -117,7 +115,6 @@ function sqlOK(mysql) {
     app.post('/newuser', bodyParser, function (req, res) {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
 
-        // add new user to database
         mysql.query('INSERT INTO People (User_name, Pass) VALUES (?, ?)',
             [req.body.name, req.body.pass], function (error, results, fields) {
                 if (error) {

@@ -1,5 +1,5 @@
 CREATE TABLE People (
-    User_name  varchar(36)    NOT NULL,
+    User_name  varchar(32)    NOT NULL,
     Pass      varchar(255)   NOT NULL,
     Bio       varchar(4095),
     PRIMARY KEY (User_name)
@@ -7,7 +7,7 @@ CREATE TABLE People (
 
 CREATE TABLE Story (
     ID        int NOT NULL   AUTO_INCREMENT,
-    Author    varchar(36),
+    Author    varchar(32),
     PostDate  TIMESTAMP,
     Content   varchar(4095)  NOT NULL,
     PRIMARY KEY (ID)
