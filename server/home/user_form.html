@@ -6,21 +6,21 @@
 -->
 
 <style type="text/css">
-    #user-form .input-field {
+    #login-form .input-field {
         width: 300px;
     }
 
-    #user-form form {
+    #login-form form {
         text-align: right;
     }
 
-    #user-form .btn {
+    #login-form .btn {
         margin-right: 30px;
         margin-bottom: 4px;
     }
 
-    #user-form center,
-    #user-form center input {
+    #login-form center,
+    #login-form center input {
         padding-top: 10px;
     }
 
@@ -46,7 +46,9 @@
                         <label for="password">Password</label>
                     </div>
                 </center>
-                <input type="submit" class="waves-effect waves-light btn"></input>
+                <button type="submit" name="action" class="waves-effect waves-light btn">Submit
+                    <i class="material-icons right">send</i>
+                </button>
             </form>
         </div>
     </li>
@@ -56,7 +58,7 @@
         <div class="collapsible-header">
             <i class="material-icons">person_add</i>New User</div>
         <div class="collapsible-body">
-            <form action="/newuser" method="post" id="createuser-form">
+            <form action="/createuser" method="post" id="createlogin-form">
                 <center>
                     <div class="input-field">
                         <input id="create-name" type="text" name="name" class="validate" required autocomplete="name" pattern="[a-zA-Z ]+" data-length="32">
@@ -71,7 +73,9 @@
                         <label for="retype-password" data-error="Passwords must match.">Retype password</label>
                     </div>
                 </center>
-                <input type="submit" class="waves-effect waves-light btn">
+                <button type="submit" name="action" class="waves-effect waves-light btn">Submit
+                    <i class="material-icons right">send</i>
+                </button>
             </form>
         </div>
     </li>

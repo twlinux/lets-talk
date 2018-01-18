@@ -34,7 +34,7 @@ li#avatar-container > * {
     
 }
 
-#user-title {
+.side-heading {
     margin-left: 20px;
 }
 
@@ -54,7 +54,8 @@ body .input-field input[type=text]:focus {
     background-color: var(--green_lighten-1);
 }
 .btn:hover,
-.btn-large:hover {
+.btn-large:hover,
+.side-nav.fixed li > a.btn:hover {
     background-color: #43a047;
 }
 
@@ -79,4 +80,12 @@ body {
 
 main {
     flex: 1 0 auto;
+}
+
+#user-panel form {
+    display: inline-block;
+}
+
+.side-nav .divider {
+    margin-top: 32px;
 }

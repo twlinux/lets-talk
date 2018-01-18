@@ -34,7 +34,7 @@ function openMessage(message) {
 
 function guestMenu() {
 
-    $('#user-form').load('user_form.html', function () {
+    $('#login-form').load('user_form.html', function () {
 
         $('.collapsible').collapsible();
         $('#create-name').characterCounter();
@@ -49,14 +49,19 @@ function activeSession() {
 
     let avatar = $('#avatar-container i').replaceWith($('<img src="/assets/smile.svg" width="200px" />'));
 
-    var xhr_getName = new XMLHttpRequest();
-    xhr_getName.open('GET', '/myname', true);
-    xhr_getName.onload = function() {
-        if (this.status == 500)
-            location.reload();
-        if (this.status != 200)
-            return;
-        $('#greeting').text(xhr_getName.responseText);
-    }
-    xhr_getName.send();
+    // retrieve name from server
+    (function () {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/myname', true);
+        xhr.onload = function () {
+            if (this.status == 500)
+                location.reload();
+            if (this.status != 200)
+                return;
+            $('#greeting').text(xhr.responseText);
+        }
+        xhr.send();
+    })();
+
+    $('#user-panel').css('display', 'initial');
 }

@@ -22,10 +22,28 @@
         <li id="avatar-container">
             <i class="material-icons">account_circle</i>
         </li>
-        <li id="user-title">
-            <h5 id="greeting">Welcome.</h5>
+        <li class="side-heading">
+            <h3 id="greeting">Welcome.</h3>
         </li>
-        <div id="user-form"></div>
+        <div id="login-form"></div>
+        <div id="user-panel" style="display: none;">
+            <div class="divider"></div>
+            <li>
+                <h5 class="side-heading">Account options</h5>
+                <center>
+                    <a class="waves-effect waves-red btn amber" href="/logout">Log out</a>
+                    <a class="waves-effect waves-red btn red accent-1" disabled title='Not implemented'>Change password</a>
+                </center>
+            </li>
+            <div class="divider"></div>
+            <li>
+                <h5 class="side-heading">Note</h5>
+                <div style="text-align: right;">
+                    <a class="waves-effect waves-light btn" id="edit-bio" style="margin-right: 30px;" disabled>Edit Bio</a>
+
+                </div>
+            </li>
+        </div>
     </ul>
 
     <header>

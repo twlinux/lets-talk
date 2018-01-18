@@ -12,10 +12,6 @@ app.use('/vendor', express.static('node_modules/materialize-css/dist/js'));
 app.use('/vendor', express.static('node_modules/material-design-icons/iconfont'));
 app.use('/vendor', express.static('node_modules/jquery/dist'));
 app.use('/vendor', express.static('node_modules/js-cookie/src'));
-app.all('/logout*', function (req, res) {
-    res.clearCookie(cookieKey);
-    res.redirect('/');
-});
 
 // connect to MySQL server
 (function () {
@@ -50,9 +46,9 @@ app.all('/logout*', function (req, res) {
 
 const port = process.env.PORT || 8080;
 app.listen(port);
-(function() {
+(function () {
     let url = `http://${port == '80' ? `${colors.bold(require('os').hostname())}.local` : `${colors.bold(ip.address())}:${colors.cyan(port.toString())}`}/`;
-    console.log(`Server running at ${colors.underline(url)}`);    
+    console.log(`Server running at ${colors.underline(url)}`);
 })();
 
 // Call this function when connection to MySQL is successful.
@@ -72,6 +68,7 @@ function sqlOK(mysql) {
         res.cookie('session', nextSession);
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
         return nextSession++;
+        // TODO clear session after timeout?
     }
 
     /*
@@ -112,8 +109,11 @@ function sqlOK(mysql) {
      * Passwords are received unencrypted, they are stored unhashed.
      * The SQL query is being made with a 'prepared statement', meaning this form is immune to SQLi.
      */
-    app.post('/newuser', bodyParser, function (req, res) {
+    app.post('/createuser', bodyParser, function (req, res) {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
+
+        // use regular expression to validate input
+        if (!/^[a-zA-Z ]{1,36}$/.test(req.body.name) || !/^[^'\x22]{1,255}$/.test(req.body.pass)) return res.sendStatus(400);
 
         mysql.query('INSERT INTO People (User_name, Pass) VALUES (?, ?)',
             [req.body.name, req.body.pass], function (error, results, fields) {
@@ -150,6 +150,15 @@ function sqlOK(mysql) {
                 res.sendStatus(500);
             }
         }
+    });
+
+    app.all('/logout*', function (req, res) {
+        let sessionID = parseInt(req.cookies.session);
+        let name = allSessions.get(sessionID);
+        res.clearCookie('session');
+        res.redirect('/');
+        if (name && allSessions.delete(sessionID))
+            console.log(`${colors.magenta(name)} has logged out. session=${colors.magenta(sessionID)}`);
     });
 
     const dbOutput = (param, result) => {
