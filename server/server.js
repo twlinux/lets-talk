@@ -49,6 +49,7 @@ app.listen(port);
 (function () {
     let url = `http://${port == '80' ? `${colors.bold(require('os').hostname())}.local` : `${colors.bold(ip.address())}:${colors.cyan(port.toString())}`}/`;
     console.log(`Server running at ${colors.underline(url)}`);
+    console.log(`Local: ${colors.underline(`http://localhost:${port}`)}`);
 })();
 
 // Call this function when connection to MySQL is successful.
@@ -69,6 +70,11 @@ function sqlOK(mysql) {
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
         return nextSession++;
         // TODO clear session after timeout?
+    }
+    const loggedIn = (sessionID) => {
+        if (!sessionID)
+            return;
+        return allSessions.get(parseInt(sessionID));
     }
 
     /*
@@ -120,8 +126,7 @@ function sqlOK(mysql) {
                 if (error) {
                     switch (error.code) {
                         case 'ER_DUP_ENTRY':
-                            res.cookie('message', JSON.stringify({ title: 'Name taken', content: 'A user already exists with that name.' }));
-                            res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
+                            sendModal({title: 'Name taken', content: 'A user already exists with that name.'}, res);
                             break;
                         case 'ER_DATA_TOO_LONG':
                             res.sendStatus(400);
@@ -136,20 +141,41 @@ function sqlOK(mysql) {
             });
     });
 
-    // send the name that corresponds to the request's session cookie
+    // AJAX send the name that corresponds to the request's session cookie
     app.get('/myname', function (req, res) {
 
-        if (!req.cookies.session)
-            res.sendStatus(403);
-        else {
-            let name = allSessions.get(parseInt(req.cookies.session));
-            if (name)
-                res.send(name);
-            else {
-                res.clearCookie('session');
-                res.sendStatus(500);
-            }
+        let name = loggedIn(req.cookies.session);
+        if (!name) {
+            res.clearCookie('session');
+            return res.sendStatus(400);
         }
+        res.send(name);
+    });
+
+    app.post('/change_password', bodyParser, function (req, res) {
+        let name = loggedIn(req.cookies.session);
+        if (!name) {
+            output(req, colors.red(`invalid sessionID=${req.cookies.session}`), 400);
+            res.clearCookie('session');
+            return res.sendStatus(400);
+        }
+        mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function(error, results) {
+            if (error) {
+                dbOutput(`User_name=${name}`,colors.red('SQL error when trying to UPDATE Pass.'))
+                res.sendStatus(500);
+                console.log(error);
+                return;
+            }
+            if (results.changedRows !== 1) {
+                res.status(500);
+                let message = `User_name ${name} not found.`;
+                res.send(message);
+                dbOutput('change_password', colors.red(message));
+                return;
+            }
+            sendModal({title: 'Changed password', content: 'Your password has been updated successfully.'}, res);
+            dbOutput(`User_name=${name}`,colors.green(`UPDATE Pass=${req.body.new_password}`));
+        });
     });
 
     app.all('/logout*', function (req, res) {
@@ -160,6 +186,11 @@ function sqlOK(mysql) {
         if (name && allSessions.delete(sessionID))
             console.log(`${colors.magenta(name)} has logged out. session=${colors.magenta(sessionID)}`);
     });
+
+    const sendModal = (message, res) => {
+        res.cookie('message', JSON.stringify(message));
+        res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
+    }
 
     const dbOutput = (param, result) => {
         console.log(`${colors.dim('SQL:')} ${colors.bold(param)} ${result}`);
@@ -189,10 +220,10 @@ function output(req, info, statusCode) {
 
 // npm cleans up connection to MySQL
 process.on('SIGINT', function () {
-    console.log(`${'SIGINT'.underline.red} recieved, process exiting.`);
+    console.log(`${'SIGINT'.underline.red} received, process exiting.`);
     process.exit();
 });
 process.on('SIGTERM', function () {
-    console.log(`${'SIGTERM'.underline.red} recieved, process exiting.`);
+    console.log(`${'SIGTERM'.underline.red} received, process exiting.`);
     process.exit();
 });

@@ -54,14 +54,32 @@ function activeSession() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/myname', true);
         xhr.onload = function () {
-            if (this.status == 500)
+            if (this.status === 200)
+                $('#greeting').text(xhr.responseText);
+            else {
+                document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 location.reload();
-            if (this.status != 200)
-                return;
-            $('#greeting').text(xhr.responseText);
+            }
         }
         xhr.send();
     })();
 
     $('#user-panel').css('display', 'initial');
+    $('#change-password').click(function () {
+        $('#modal1-title').text('Change password');
+        let modal = $('#modal1-body');
+        modal.text('');
+        let modalButton = $('#modal1-button');
+        modalButton.removeClass('waves-green');
+        modalButton.addClass('waves-red');
+        modalButton.text('Cancel');
+        modal.load('password_form.html', function() {
+            $('#new-password').ready(function() {
+                $('.modal').modal({
+                    dismissible: true
+                });
+                $('#modal1').modal('open');
+            });
+        });
+    });
 }

@@ -1,7 +1,7 @@
 CREATE TABLE People (
     User_name  varchar(32)    NOT NULL,
-    Pass      varchar(255)   NOT NULL,
-    Bio       varchar(4095),
+    Pass       varchar(255)   NOT NULL,
+    Bio        varchar(4095),
     PRIMARY KEY (User_name)
 );
 
