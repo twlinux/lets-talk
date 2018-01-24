@@ -37,13 +37,13 @@
             <form action="/login" method="post">
                 <center>
                     <div class="input-field">
-                        <input id="username" type="text" class="validate" name="name" required autofocus autocomplete="username" data-length="36">
-                        <label for="username">User name</label>
+                        <input id="username" type="text" class="validate" name="name" required autofocus autocomplete="username" pattern="[^'\x22]+">
+                        <label for="username" data-error="Invalid character(s).">User name</label>
                     </div>
 
                     <div class="input-field">
-                        <input id="password" type="password" class="validate" name="pass" required autocomplete="current-password">
-                        <label for="password">Password</label>
+                        <input id="password" type="password" class="validate" name="pass" required autocomplete="current-password" pattern="[^'\x22]+">
+                        <label for="password" data-error="Invalid character(s).">Password</label>
                     </div>
                 </center>
                 <button type="submit" name="action" class="waves-effect waves-light btn">Submit

@@ -50,19 +50,19 @@ function activeSession() {
     let avatar = $('#avatar-container i').replaceWith($('<img src="/assets/smile.svg" width="200px" />'));
 
     // retrieve name from server
-    (function () {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/myname', true);
-        xhr.onload = function () {
-            if (this.status === 200)
-                $('#greeting').text(xhr.responseText);
-            else {
+    $.ajax({
+        url: '/myname',
+        data: 'text',
+        statusCode: {
+            400: function () {
                 document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 location.reload();
+            },
+            200: (data) => {
+                $('#greeting').text(data);
             }
         }
-        xhr.send();
-    })();
+    });
 
     $('#user-panel').css('display', 'initial');
     $('#change-password').click(function () {
@@ -73,8 +73,8 @@ function activeSession() {
         modalButton.removeClass('waves-green');
         modalButton.addClass('waves-red');
         modalButton.text('Cancel');
-        modal.load('password_form.html', function() {
-            $('#new-password').ready(function() {
+        modal.load('password_form.html', function () {
+            $('#new-password').ready(function () {
                 $('.modal').modal({
                     dismissible: true
                 });
