@@ -10,6 +10,10 @@ body {
     width: var(--sidenavWidth);
 }
 
+.side-nav .divider {
+    margin-top: 32px;
+}
+
 header, main, footer {
     padding-left: var(--sidenavWidth);
 }
@@ -82,12 +86,4 @@ body {
 
 main {
     flex: 1 0 auto;
-}
-
-#user-panel form {
-    display: inline-block;
-}
-
-.side-nav .divider {
-    margin-top: 32px;
 }

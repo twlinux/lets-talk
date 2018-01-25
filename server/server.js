@@ -82,6 +82,8 @@ function sqlOK(mysql) {
      * The query looks like this: "SELECT [...] AND (Pass=${pass})"
      * Those parenthesis makes it easy so that you can inject "  ' OR TRUE   "
      * That will match any password...
+     * 
+     * Cross-site request forgery (CSRF) with every POST handler.
      */
     app.post('/login', bodyParser, function (req, res) {
         if (!req.body || !req.body.name || !req.body.pass)

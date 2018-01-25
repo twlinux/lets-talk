@@ -34,14 +34,16 @@ function openMessage(message) {
 
 function guestMenu() {
 
-    $('#login-form').load('user_form.html', function () {
+    let panel = $('#user-panel');
+    panel.load('login.html', function () {
+        $(panel).ready(function () {
+            $('.collapsible').collapsible();
+            $('#create-name').characterCounter();
 
-        $('.collapsible').collapsible();
-        $('#create-name').characterCounter();
-
-        $('#create-password').keyup(function () {
-            $('#retype-password').attr('pattern', $('#create-password').val());
-        });
+            $('#create-password').keyup(function () {
+                $('#retype-password').attr('pattern', $('#create-password').val());
+            });
+        })
     });
 }
 
@@ -64,21 +66,25 @@ function activeSession() {
         }
     });
 
-    $('#user-panel').css('display', 'initial');
-    $('#change-password').click(function () {
-        $('#modal1-title').text('Change password');
-        let modal = $('#modal1-body');
-        modal.text('');
-        let modalButton = $('#modal1-button');
-        modalButton.removeClass('waves-green');
-        modalButton.addClass('waves-red');
-        modalButton.text('Cancel');
-        modal.load('password_form.html', function () {
-            $('#new-password').ready(function () {
-                $('.modal').modal({
-                    dismissible: true
+    let panel = $('#user-panel');
+    panel.load('account_options.html', function () {
+        panel.ready(function () {
+            $('#change-password').click(function () {
+                $('#modal1-title').text('Change password');
+                let modal = $('#modal1-body');
+                modal.text('');
+                let modalButton = $('#modal1-button');
+                modalButton.removeClass('waves-green');
+                modalButton.addClass('waves-red');
+                modalButton.text('Cancel');
+                modal.load('password_form.html', function () {
+                    $('#new-password').ready(function () {
+                        $('.modal').modal({
+                            dismissible: true
+                        });
+                        $('#modal1').modal('open');
+                    });
                 });
-                $('#modal1').modal('open');
             });
         });
     });
