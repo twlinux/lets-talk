@@ -14,8 +14,8 @@ $(document).ready(function () {
         activeSession();
     else
         guestMenu();
-
-    $('main').append('jQuery works');
+    
+    loadStories();
 });
 
 function materializeInit() {
@@ -54,7 +54,7 @@ function activeSession() {
     // retrieve name from server
     $.ajax({
         url: '/myname',
-        data: 'text',
+        dataType: 'text',
         statusCode: {
             400: function () {
                 document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -88,4 +88,27 @@ function activeSession() {
             });
         });
     });
+}
+
+function loadStories() {
+
+    // TODO loading bar
+
+    $.ajax({
+        url: '/story',
+        dataType: 'json',
+        cache: false,
+        error: (jqXHR, textStatus, errorThrown) => {
+            if (textStatus === 'timeout')
+                alert('Connection timeout. Could not retrieve stories.');
+            else
+                alert(`AJAX error. textStatus=${textStatus} and errorThrown=${errorThrown}`);
+        },
+        success: data => inflateStories(data),
+        timeout: 2000
+    });
+}
+
+function inflateStories(data) {
+    $('main').append(JSON.stringify(data));
 }

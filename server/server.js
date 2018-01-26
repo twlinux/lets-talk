@@ -71,9 +71,10 @@ function sqlOK(mysql) {
         return nextSession++;
         // TODO clear session after timeout?
     }
+
     const loggedIn = (sessionID) => {
         if (!sessionID)
-            return;
+            return null;
         return allSessions.get(parseInt(sessionID));
     }
 
@@ -128,7 +129,7 @@ function sqlOK(mysql) {
                 if (error) {
                     switch (error.code) {
                         case 'ER_DUP_ENTRY':
-                            sendModal({title: 'Name taken', content: 'A user already exists with that name.'}, res);
+                            sendModal({ title: 'Name taken', content: 'A user already exists with that name.' }, res);
                             break;
                         case 'ER_DATA_TOO_LONG':
                             res.sendStatus(400);
@@ -161,9 +162,9 @@ function sqlOK(mysql) {
             res.clearCookie('session');
             return res.sendStatus(400);
         }
-        mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function(error, results) {
+        mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function (error, results) {
             if (error) {
-                dbOutput(`User_name=${name}`,colors.red('SQL error when trying to UPDATE Pass.'))
+                dbOutput(`User_name=${name}`, colors.red('SQL error when trying to UPDATE Pass.'))
                 res.sendStatus(500);
                 console.log(error);
                 return;
@@ -175,8 +176,8 @@ function sqlOK(mysql) {
                 dbOutput('change_password', colors.red(message));
                 return;
             }
-            sendModal({title: 'Changed password', content: 'Your password has been updated successfully.'}, res);
-            dbOutput(`User_name=${name}`,colors.green(`UPDATE Pass=${req.body.new_password}`));
+            sendModal({ title: 'Changed password', content: 'Your password has been updated successfully.' }, res);
+            dbOutput(`User_name=${name}`, colors.green(`UPDATE Pass=${req.body.new_password}`));
         });
     });
 
@@ -187,6 +188,29 @@ function sqlOK(mysql) {
         res.redirect('/');
         if (name && allSessions.delete(sessionID))
             console.log(`${colors.magenta(name)} has logged out. session=${colors.magenta(sessionID)}`);
+    });
+
+    app.get('/story', function (req, res) {
+
+        mysql.query('SELECT * FROM Story WHERE PostDate < ? ORDER BY PostDate DESC LIMIT ?',
+            [req.query.after ? req.query.after : new Date(), req.query.number ? req.query.number : 5],
+            (error, results) => {
+
+                if (error) {
+                    console.log(error);
+                    return res.sendStatus(500);
+                }
+
+                let name = loggedIn(req.cookies.session);
+                if (loggedIn) {
+                    results = results.map(story => {
+                        if (story['Author'] === name)
+                            story['own'] = true;
+                        return story;
+                    });
+                }
+                res.json(results);
+            });
     });
 
     const sendModal = (message, res) => {
