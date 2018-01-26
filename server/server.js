@@ -15,9 +15,9 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
 // connect to MySQL server
 (function () {
-    require('node-env-file')(`${__dirname}/../database/variables.env`);
+    //require('node-env-file')(`${__dirname}/../database/variables.env`);
     let sql_config = {
-        host: 'localhost',
+        host: 'talk-db',
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
         database: process.env.MYSQL_DATABASE
@@ -48,8 +48,9 @@ const port = process.env.PORT || 8080;
 app.listen(port);
 (function () {
     let url = `http://${port == '80' ? `${colors.bold(require('os').hostname())}.local` : `${colors.bold(ip.address())}:${colors.cyan(port.toString())}`}/`;
-    console.log(`Server running at ${colors.underline(url)}`);
-    console.log(`Local: ${colors.underline(`http://localhost:${port}`)}`);
+    console.log('HTTP server is online.');
+    // console.log(`Server running at ${colors.underline(url)}`);
+    // console.log(`Local: ${colors.underline(`http://localhost:${port}`)}`);
 })();
 
 // Call this function when connection to MySQL is successful.

@@ -1,0 +1,31 @@
+# start entire application as a Docker swarm
+
+version: '3.2'
+services:
+  database:
+    container_name: talk-db
+    image: mysql/mysql-server:latest             # image to start container from
+    env_file: database/variables.env                      # MySQL initial configurations
+    expose:
+      - "3306"
+    volumes:
+      - type: bind
+        source: ./database/my.cnf
+        target: /etc/my.cnf
+      - type: bind
+        source: ./database/sql/
+        target: /var/lib/mysql
+      - type: bind
+        source: ./database/scripts/
+        target: /docker-entrypoint-initdb.d/     # post-creation .sh or .sql scripts
+  express:
+    container_name: talk-js
+    env_file: database/variables.env
+    build: ./server
+    volumes:
+      - ./server/assets:/usr/src/app/assets
+      - ./server/home:/usr/src/app/home
+      - ./server/vendor:/usr/src/app/vendor
+      - ./server/server.js:/usr/src/app/server.js
+    ports:
+      - "${NODE_PORT}:8080"

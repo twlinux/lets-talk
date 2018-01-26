@@ -15,33 +15,15 @@
 
 ## Deployment
 
-### MySQL Container
-
 Install `docker-compose` (on Ubuntu)
 
 ```bash
 sudo apt install docker-compose
 ```
 
-Start the container.
+Use the script to display possible URLs.
 
 ```bash
-cd database && docker-compose up [-d]
-```
-
-### Express Server
-
-Install dependencies (on Ubuntu)
-
-```bash
-sudo apt install npm
-cd server
-npm install
-```
-
-Start the server
-
-```bash
-npm test #port 8080
-npm start #port 80
+chmod +x url_start.sh
+./url_start.sh
 ```

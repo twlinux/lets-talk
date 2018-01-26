@@ -4,8 +4,8 @@
   "description": "Terrible web forum that demonstrates SQLi and XSS",
   "main": "server.js",
   "scripts": {
-    "test": "PORT=8080 node server.js",
-    "start": "PORT=80 node server.js"
+    "test": "node server.js",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -27,8 +27,7 @@
     "js-cookie": "^2.2.0",
     "material-design-icons": "^3.0.1",
     "materialize-css": "^0.100.2",
-    "mysql": "^2.15.0",
-    "node-env-file": "^0.1.8"
+    "mysql": "^2.15.0"
   },
   "devDependencies": {
     "eslint": "^4.15.0"
