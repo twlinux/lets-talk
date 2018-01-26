@@ -15,15 +15,9 @@
 
 ## Deployment
 
-Install `docker-compose` (on Ubuntu)
-
 ```bash
 sudo apt install docker-compose
-```
-
-Use the script to display possible URLs.
-
-```bash
-chmod +x url_start.sh
-./url_start.sh
+chmod +x url_start.sh           # executable permission
+./url_start.sh                  # connect to host port 8080
+sudo PORT=80 ./url_start.sh     # connect to host port 80
 ```
