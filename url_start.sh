@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+mkdir -p database/sql
+
 NODE_PORT=${PORT:-8080}
 [[ $NODE_PORT = 80 ]] && disp_port="" || disp_port=":$NODE_PORT"
 

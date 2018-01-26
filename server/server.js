@@ -58,9 +58,16 @@ function sqlOK(mysql) {
     console.log(colors.bold(`Connected to ${colors.rainbow('MySQL!')}`));
 
     /*
+     * ---------- HACK ----------
+     * Session management
+     * 
      * Session identification numbers are assigned sequentially. 
      * This is highly predictable. An attacker can modify their own cookie to
      * perform session hijacking.
+     * Fix: 
+     * more sophisticated session management solution: https://github.com/expressjs/session
+     * use signed cookies. https://github.com/expressjs/cookie-parser#cookieparsersecret-options
+     * Associate cookie with client's IP address.
      */
     var nextSession = 1;
     var allSessions = new Map();
@@ -80,12 +87,20 @@ function sqlOK(mysql) {
     }
 
     /*
-     * SQLi vulnerability.
-     * The query looks like this: "SELECT [...] AND (Pass=${pass})"
-     * Those parenthesis makes it easy so that you can inject "  ' OR TRUE   "
-     * That will match any password...
+     * ---------- HACK ----------
+     * Where: login form
      * 
-     * Cross-site request forgery (CSRF) with every POST handler.
+     * Type: SQLi
+     * Vulnerability: client-side input validation without server-side proofing
+     * Example: provide a valid username. For the password, try:
+     * ' OR TRUE OR '
+     * ` OR TRUE); -- comment
+     * Fix: use SQL prepared statements.
+     * 
+     * Type: MitM
+     * Vulnerability: unencrypted transmission of credentials
+     * Exploit: https://github.com/twlinux/club/wiki/Man-in-the-Middle-(MitM)-Attack-%E2%80%93-ARP-Poisoning
+     * Fix: use HTTPS, hash + salt passwords on client before POST
      */
     app.post('/login', bodyParser, function (req, res) {
         if (!req.body || !req.body.name || !req.body.pass)
@@ -116,8 +131,8 @@ function sqlOK(mysql) {
     });
 
     /*
-     * Passwords are received unencrypted, they are stored unhashed.
-     * The SQL query is being made with a 'prepared statement', meaning this form is immune to SQLi.
+     * ---------- HACK ----------
+     * Passwords are stored in plaintext.
      */
     app.post('/createuser', bodyParser, function (req, res) {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
@@ -156,6 +171,12 @@ function sqlOK(mysql) {
         res.send(name);
     });
 
+    /*
+     * ---------- HACK ----------
+     * Where: POST /change_password
+     * 
+     * Type: CSRF
+     */
     app.post('/change_password', bodyParser, function (req, res) {
         let name = loggedIn(req.cookies.session);
         if (!name) {
@@ -194,7 +215,7 @@ function sqlOK(mysql) {
     app.get('/story', function (req, res) {
 
         mysql.query('SELECT * FROM Story WHERE PostDate < ? ORDER BY PostDate DESC LIMIT ?',
-            [req.query.after ? req.query.after : new Date(), req.query.number ? req.query.number : 5],
+            [req.query.after || new Date(), req.query.number || 5],
             (error, results) => {
 
                 if (error) {
