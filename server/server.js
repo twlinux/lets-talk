@@ -15,7 +15,7 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
 // connect to MySQL server
 (function () {
-    //require('node-env-file')(`${__dirname}/../database/variables.env`);
+    // variables defined by docker-compose.yml
     let sql_config = {
         host: 'talk-db',
         user: process.env.MYSQL_USER,
@@ -152,10 +152,10 @@ function sqlOK(mysql) {
                         default:
                             res.sendStatus(503);
                     }
-                    dbOutput(`INSERT INTO People... User_name=${req.body.name}`, colors.red(error.code));
+                    output(req, `INSERT INTO People... User_name=${req.body.name}`, colors.red(error.code));
                 }
                 else
-                    dbOutput(`INSERT INTO People... User_name=${req.body.name}`,
+                    output(req, `INSERT INTO People... User_name=${req.body.name}`,
                         colors.green(`created sessionID=${createSession(req.body.name, res)}`));
             });
     });
@@ -173,9 +173,11 @@ function sqlOK(mysql) {
 
     /*
      * ---------- HACK ----------
-     * Where: POST /change_password
-     * 
      * Type: CSRF
+     * Where: 
+     * POST /change_password
+     * GET /remove_story
+     * GET /create_story
      */
     app.post('/change_password', bodyParser, function (req, res) {
         let name = loggedIn(req.cookies.session);
@@ -186,7 +188,7 @@ function sqlOK(mysql) {
         }
         mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function (error, results) {
             if (error) {
-                dbOutput(`UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, colors.red('OOPS'));
+                output(req, `UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, colors.red('OOPS'));
                 res.sendStatus(500);
                 console.log(error);
                 return;
@@ -198,22 +200,22 @@ function sqlOK(mysql) {
                     res.status(500);
                     let message = `User_name="${name}" changed nothing.`;
                     res.send(message);
-                    dbOutput(`UPDATE People SET Pass=${req.body.new_password}`, message);
+                    output(req, `UPDATE People SET Pass=${req.body.new_password}`, message);
                 }
                 return;
             }
             sendModal({ title: 'Changed password', content: 'Your password has been updated successfully.' }, res);
-            dbOutput(`UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, true);
+            output(req, `UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, true);
         });
     });
 
-    app.all('/logout*', function (req, res) {
+    app.all('/logout', function (req, res) {
         let sessionID = parseInt(req.cookies.session);
         let name = allSessions.get(sessionID);
         res.clearCookie('session');
         res.redirect('/');
         if (name && allSessions.delete(sessionID))
-            console.log(`${colors.magenta(name)} has logged out. sessionID=${colors.magenta(sessionID)}`);
+            output(req, `${colors.magenta(name)} has logged out. sessionID=${colors.magenta(sessionID)}`, res.statusCode);
     });
 
     app.get('/story', function (req, res) {
@@ -265,14 +267,19 @@ function sqlOK(mysql) {
                     return;
                 }
                 if (results.affectedRows === 1) {
-                    dbOutput(`DELETE FROM Story WHERE ID=${story_id}...`, true);
+                    output(req, `DELETE FROM Story WHERE ID=${story_id}...`, true);
                     sendModal({ title: 'Story removed', content: 'That story has been deleted.' }, res);
-                    return;
                 }
-                res.sendStatus(500);
+                else
+                    res.sendStatus(500);
             });
     });
 
+    /*
+     * ---------- HACK ----------
+     * Type: XSS
+     * Where: GET /create_story
+     */
     app.get('/create_story', function (req, res) {
 
         if (!req.query.my_story) {
@@ -295,7 +302,7 @@ function sqlOK(mysql) {
                     return;
                 }
                 if (results.affectedRows === 1) {
-                    dbOutput(`INSERT INTO Story... VALUES (${name}, ${req.query.my_story}...`, true)
+                    output(req, `INSERT INTO Story... VALUES (${name}, ${req.query.my_story}...`, true)
                     res.redirect('/');
                     return;
                 }
@@ -307,15 +314,10 @@ function sqlOK(mysql) {
         res.cookie('message', JSON.stringify(message));
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
     }
-
-    const dbOutput = (param, result) => {
-        console.log(`${colors.dim('SQL:')} ${colors.bold(param)} `
-            + `${result === true ? colors.green('Successful!') : result}`);
-    }
 }
 
 // output(req, `message`, res.statusCode);
-function output(req, info, statusCode) {
+function output(req, info, result) {
 
     let request;
     switch (req.method) {
@@ -323,16 +325,22 @@ function output(req, info, statusCode) {
             request = `${colors.green(req.method)} ${info}`;
             break;
         case 'POST':
-            request = `${colors.blue(req.method)} ${colors.bold(info.magenta)}`;
+            request = `${colors.blue(req.method)} ${colors.bold(info)}`;
             break;
         case false:
             request = 'invalid';
         default:
             request = colors.red(req.method);
     }
+
+    if (Number.isInteger)
+        result = colors.magenta(result);
+    else if (result === true)
+        result = colors.green('Successful!');
+    
     let date = new Date();
     console.log(colors.dim(`[  ${date.getHours()}:${date.getMinutes()} ${date.getSeconds()} ]`)
-        + ` ${req.ip} ${colors.italic(req.originalUrl)}: ${request} ${colors.magenta(statusCode)}`);
+        + ` ${req.ip} ${colors.italic(req.originalUrl)}: ${request} ${result}`);
 }
 
 // npm cleans up connection to MySQL
