@@ -6,7 +6,11 @@ $(document).ready(function () {
 
     let message = Cookies.get('message');
     if (message) {
-        openMessage(message);
+
+        message = JSON.parse(message);
+        $('#modal-message-title').text(message.title);
+        $('#modal-message-body').text(message.content);
+        $('#modal-message').modal('open');
         Cookies.remove('message');
     }
 
@@ -20,16 +24,9 @@ $(document).ready(function () {
 
 function materializeInit() {
     $('.button-collapse').sideNav();
-}
-
-function openMessage(message) {
-    message = JSON.parse(message);
-    $('#modal1-title').text(message.title);
-    $('#modal1-body').text(message.content);
     $('.modal').modal({
         dismissible: true
     });
-    $('#modal1').modal('open');
 }
 
 function guestMenu() {
@@ -67,24 +64,10 @@ function activeSession() {
     });
 
     let panel = $('#user-panel');
-    panel.load('account_options.html', function () {
+    panel.load('account.html', function () {
         panel.ready(function () {
             $('#change-password').click(function () {
-                $('#modal1-title').text('Change password');
-                let modal = $('#modal1-body');
-                modal.text('');
-                let modalButton = $('#modal1-button');
-                modalButton.removeClass('waves-green');
-                modalButton.addClass('waves-red');
-                modalButton.text('Cancel');
-                modal.load('password_form.html', function () {
-                    $('#new-password').ready(function () {
-                        $('.modal').modal({
-                            dismissible: true
-                        });
-                        $('#modal1').modal('open');
-                    });
-                });
+                $('#modal-password').modal('open');
             });
         });
     });
@@ -122,7 +105,9 @@ function createCard(story) {
     if (story.own) {
         let destroy = $('<i class="close material-icons delete-story">close</i>');
         destroy.click(function () {
-            // TODO delete the post
+            $('#remove-which').attr('value', story.ID);
+            $('#modal-remove-preview').text(story.Content);
+            $('#modal-remove').modal('open');
         });
         card.append(destroy);
     }

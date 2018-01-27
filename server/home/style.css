@@ -8,6 +8,7 @@ body {
 
 .side-nav {
     width: var(--sidenavWidth);
+    background: linear-gradient(to bottom left, #ffffff 50%, var(--green_lighten-1) 120%);
 }
 
 .side-nav .divider {
@@ -27,7 +28,6 @@ header, main, footer {
 li#avatar-container {
     text-align: center;
     line-height: 0%;
-    background: linear-gradient(to bottom, var(--green_lighten-3) 1%, transparent 100%);
 }
 
 li#avatar-container > * {

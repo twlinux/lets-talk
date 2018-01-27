@@ -192,10 +192,14 @@ function sqlOK(mysql) {
                 return;
             }
             if (results.changedRows !== 1) {
-                res.status(500);
-                let message = `User_name ${name} not found.`;
-                res.send(message);
-                dbOutput('change_password', colors.red(message));
+                if (results.affectedRows > 0)
+                    sendModal({ title: 'Changed password', content: 'Your password was not been changed.' }, res);
+                else {
+                    res.status(500);
+                    let message = `User_name="${name}" changed nothing.`;
+                    res.send(message);
+                    dbOutput('change_password', colors.red(message));
+                }
                 return;
             }
             sendModal({ title: 'Changed password', content: 'Your password has been updated successfully.' }, res);
