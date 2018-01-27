@@ -14,7 +14,7 @@ $(document).ready(function () {
         activeSession();
     else
         guestMenu();
-    
+
     loadStories();
 });
 
@@ -110,5 +110,29 @@ function loadStories() {
 }
 
 function inflateStories(data) {
-    $('main').append(JSON.stringify(data));
+
+    data.forEach(story => $('#feed').append(createCard(story)));
 }
+
+function createCard(story) {
+    let card = $('<div></div>').addClass('card-content');
+
+    card.append($('<div></div>').addClass('chip').text(story.Author));
+
+    if (story.own) {
+        let destroy = $('<i class="close material-icons delete-story">close</i>');
+        destroy.click(function () {
+            // TODO delete the post
+        });
+        card.append(destroy);
+    }
+
+    // TODO make date prettier
+    card.append($('<p></p>').addClass('date').text(story.PostDate));
+    card.append($('<p></p>').text(story.Content));
+
+    card = $('<div></div>').addClass('card').append(card);
+    return $('<div></div>').addClass('col s12 m6').append(card);
+}
+
+// TODO ajax refresh get new cards

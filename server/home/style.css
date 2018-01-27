@@ -87,3 +87,22 @@ body {
 main {
     flex: 1 0 auto;
 }
+
+i.delete-story {
+    float: right;
+    color: lightgray;
+    transition: .2s;
+}
+
+i.delete-story:hover {
+    float: right;
+    color: darkred;
+    cursor: pointer;
+}
+
+.card-content .date {
+    font-size: 85%;
+    color: grey;
+    font-style: italic;
+    font-weight: lighter;
+}
