@@ -63,13 +63,13 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="action" class="modal-action waves-effect waves-red btn-flat">Submit</button>
+                <button type="submit" class="modal-action waves-effect waves-red btn-flat">Submit</button>
                 <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
             </div>
         </form>
     </div>
     <div id="modal-remove" class="modal">
-        <form action="/remove_story" method="post">
+        <form action="/remove_story" method="get">
             <input type="hidden" name="story_id" id="remove-which">
             <div class="modal-content">
                 <h4>Remove story</h4>
@@ -78,7 +78,7 @@
                 <p id="modal-remove-preview"></p>
             </div>
             <div class="modal-footer">
-                <button type="submit" name="action" class="modal-action waves-effect waves-red btn-flat">Confirm</button>
+                <button type="submit" class="modal-action waves-effect waves-red btn-flat">Confirm</button>
                 <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
             </div>
         </form>
@@ -89,6 +89,22 @@
             <h1 style="color: red;">This site requires Javascript.</h1>
         </noscript>
         <div id="feed" class="row"></div>
+        <div class="row">
+            <form class="col s12" id="create-story-form" action="/create_story">
+                <fieldset id="create-story-fieldset">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <textarea id="create-input" class="materialize-textarea" name="my_story" required></textarea>
+                            <label for="create-input">Share your story!</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="waves-effect waves-light btn">Submit
+                        <i class="material-icons right">share</i>
+                    </button>
+                </fieldset>
+
+            </form>
+        </div>
     </main>
 
     <footer class="page-footer green lighten-2">

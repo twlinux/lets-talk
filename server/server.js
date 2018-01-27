@@ -39,7 +39,6 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
         // 404 handler at the very end
         app.use(function (req, res) {
             res.status(404).end();
-            output(req, colors.dim('not found'), res.statusCode);
         });
     });
 })();
@@ -126,7 +125,7 @@ function sqlOK(mysql) {
                 }
                 res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
             }
-            dbOutput(`name=${req.body.name} and pass=${req.body.pass}`, outcome);
+            output(req, `name=${req.body.name} and pass=${req.body.pass} Logged in!`, res.statusCode);
         });
     });
 
@@ -153,10 +152,11 @@ function sqlOK(mysql) {
                         default:
                             res.sendStatus(503);
                     }
-                    dbOutput(`name=${req.body.name}`, colors.red(error.code));
+                    dbOutput(`INSERT INTO People... User_name=${req.body.name}`, colors.red(error.code));
                 }
                 else
-                    dbOutput(`name=${req.body.name} and sessionID=${createSession(req.body.name, res)}`, colors.green('user created :)'));
+                    dbOutput(`INSERT INTO People... User_name=${req.body.name}`,
+                        colors.green(`created sessionID=${createSession(req.body.name, res)}`));
             });
     });
 
@@ -166,7 +166,7 @@ function sqlOK(mysql) {
         let name = loggedIn(req.cookies.session);
         if (!name) {
             res.clearCookie('session');
-            return res.sendStatus(400);
+            return res.sendStatus(401);
         }
         res.send(name);
     });
@@ -182,11 +182,11 @@ function sqlOK(mysql) {
         if (!name) {
             output(req, colors.red(`invalid sessionID=${req.cookies.session}`), 400);
             res.clearCookie('session');
-            return res.sendStatus(400);
+            return res.sendStatus(401);
         }
         mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function (error, results) {
             if (error) {
-                dbOutput(`User_name=${name}`, colors.red('SQL error when trying to UPDATE Pass.'))
+                dbOutput(`UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, colors.red('OOPS'));
                 res.sendStatus(500);
                 console.log(error);
                 return;
@@ -198,12 +198,12 @@ function sqlOK(mysql) {
                     res.status(500);
                     let message = `User_name="${name}" changed nothing.`;
                     res.send(message);
-                    dbOutput('change_password', colors.red(message));
+                    dbOutput(`UPDATE People SET Pass=${req.body.new_password}`, message);
                 }
                 return;
             }
             sendModal({ title: 'Changed password', content: 'Your password has been updated successfully.' }, res);
-            dbOutput(`User_name=${name}`, colors.green(`UPDATE Pass=${req.body.new_password}`));
+            dbOutput(`UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, true);
         });
     });
 
@@ -213,20 +213,22 @@ function sqlOK(mysql) {
         res.clearCookie('session');
         res.redirect('/');
         if (name && allSessions.delete(sessionID))
-            console.log(`${colors.magenta(name)} has logged out. session=${colors.magenta(sessionID)}`);
+            console.log(`${colors.magenta(name)} has logged out. sessionID=${colors.magenta(sessionID)}`);
     });
 
     app.get('/story', function (req, res) {
 
+        // TODO AJAX PostDate > ?
         mysql.query('SELECT * FROM Story WHERE PostDate < ? ORDER BY PostDate DESC LIMIT ?',
-            [req.query.after || new Date(), req.query.number || 5],
+            [req.query.after || new Date(), req.query.number || 6],
             (error, results) => {
 
                 if (error) {
+                    output(req, `SELECT * FROM Story... COULD NOT FETCH STORIES.`, 500);
                     console.log(error);
-                    return res.sendStatus(500);
+                    res.sendStatus(500);
+                    return;
                 }
-
                 let name = loggedIn(req.cookies.session);
                 if (loggedIn) {
                     results = results.map(story => {
@@ -239,13 +241,76 @@ function sqlOK(mysql) {
             });
     });
 
+    app.get('/remove_story', function (req, res) {
+
+        let story_id = parseInt(req.query.story_id);
+        if (Number.isNaN(story_id)) {
+            output(req, colors.red(`story_id=${req.query.story_id} is not an integer`), 400);
+            return res.sendStatus(400);
+        }
+        let name = loggedIn(req.cookies.session);
+        if (!name) {
+            output(req, colors.red(`invalid sessionID=${req.cookies.session}`), 400);
+            res.clearCookie('session');
+            return res.sendStatus(401);
+        }
+
+        mysql.query('DELETE FROM Story WHERE ID=? AND Author=?',
+            [story_id, name], (error, results) => {
+
+                if (error) {
+                    output(req, colors.red('SQL ERROR'), 500);
+                    console.log(error);
+                    res.sendStatus(500);
+                    return;
+                }
+                if (results.affectedRows === 1) {
+                    dbOutput(`DELETE FROM Story WHERE ID=${story_id}...`, true);
+                    sendModal({ title: 'Story removed', content: 'That story has been deleted.' }, res);
+                    return;
+                }
+                res.sendStatus(500);
+            });
+    });
+
+    app.get('/create_story', function (req, res) {
+
+        if (!req.query.my_story) {
+            output(req, colors.red('my_story is undefined'), 400);
+            return res.sendStatus(400);
+        }
+        let name = loggedIn(req.cookies.session);
+        if (!name) {
+            output(req, colors.red(`invalid sessionID=${req.cookies.session}`), 400);
+            res.clearCookie('session');
+            return res.sendStatus(401);
+        }
+        mysql.query('INSERT INTO Story (Author, Content, PostDate) VALUES (?, ?, ?)',
+            [name, req.query.my_story, new Date()], (error, results) => {
+
+                if (error) {
+                    output(req, colors.red('SQL ERROR'), 500);
+                    console.log(error);
+                    res.sendStatus(500);
+                    return;
+                }
+                if (results.affectedRows === 1) {
+                    dbOutput(`INSERT INTO Story... VALUES (${name}, ${req.query.my_story}...`, true)
+                    res.redirect('/');
+                    return;
+                }
+                res.sendStatus(500);
+            });
+    });
+
     const sendModal = (message, res) => {
         res.cookie('message', JSON.stringify(message));
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
     }
 
     const dbOutput = (param, result) => {
-        console.log(`${colors.dim('SQL:')} ${colors.bold(param)} ${result}`);
+        console.log(`${colors.dim('SQL:')} ${colors.bold(param)} `
+            + `${result === true ? colors.green('Successful!') : result}`);
     }
 }
 

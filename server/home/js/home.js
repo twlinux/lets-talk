@@ -17,7 +17,7 @@ $(document).ready(function () {
     if (Cookies.get('session'))
         activeSession();
     else
-        guestMenu();
+        guest();
 
     loadStories();
 });
@@ -29,7 +29,7 @@ function materializeInit() {
     });
 }
 
-function guestMenu() {
+function guest() {
 
     let panel = $('#user-panel');
     panel.load('login.html', function () {
@@ -42,6 +42,15 @@ function guestMenu() {
             });
         })
     });
+
+    $('#create-story-form').click(function() {
+        let toastContent = $('<span>You must be signed in to post. </span>');
+        toastContent.append($('<i class="material-icons right">mood_bad</i>'));
+        Materialize.toast(toastContent, 4000);
+    });
+
+    $('#create-story-fieldset').attr('disabled', 'disabled');
+
 }
 
 function activeSession() {
@@ -53,7 +62,7 @@ function activeSession() {
         url: '/myname',
         dataType: 'text',
         statusCode: {
-            400: function () {
+            401: function () {
                 document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 location.reload();
             },
@@ -114,7 +123,8 @@ function createCard(story) {
 
     // TODO make date prettier
     card.append($('<p></p>').addClass('date').text(story.PostDate));
-    card.append($('<p></p>').text(story.Content));
+    card.append($('<p></p>').html(story.Content)); // XSS
+    // TODO truncate card if content is too long
 
     card = $('<div></div>').addClass('card').append(card);
     return $('<div></div>').addClass('col s12 m6').append(card);

@@ -8,7 +8,7 @@ body {
 
 .side-nav {
     width: var(--sidenavWidth);
-    background: linear-gradient(to bottom left, #ffffff 50%, var(--green_lighten-1) 120%);
+    background-color: whitesmoke;
 }
 
 .side-nav .divider {
