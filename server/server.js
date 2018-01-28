@@ -220,7 +220,7 @@ function sqlOK(mysql) {
 
     app.get('/story', function (req, res) {
 
-        // TODO AJAX PostDate > ?
+        // TODO AJAX PostDate > ? Author = ?
         mysql.query('SELECT * FROM Story WHERE PostDate < ? ORDER BY PostDate DESC LIMIT ?',
             [req.query.after || new Date(), req.query.number || 6],
             (error, results) => {

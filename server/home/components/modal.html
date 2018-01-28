@@ -1,0 +1,53 @@
+<div id="modal-message" class="modal">
+    <div class="modal-content">
+        <h4 id="modal-message-title">Title</h4>
+        <p id="modal-message-body">text</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" id="modal-message-button" class="modal-action modal-close waves-effect waves-green btn-flat">OK</a>
+    </div>
+</div>
+<div id="modal-password" class="modal">
+    <form action="/change_password" method="post">
+        <div class="modal-content">
+            <h4>Change Password</h4>
+            <p>
+                <div class="input-field">
+                    <input id="new-password" type="password" name="new_password" class="validate" required autocomplete="new-password">
+                    <label for="new-password" data-error="Please enter a new password.">Password</label>
+                </div>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="modal-action waves-effect waves-red btn-flat">Submit</button>
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </form>
+</div>
+<div id="modal-delete-account" class="modal">
+    <div class="modal-content">
+        <h4>Delete Account</h4>
+        <p>
+            Are you sure you want to delete your account?
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="/delete_account" class="modal-action waves-effect waves-red btn-flat">Yes</a>
+        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">No</a>
+    </div>
+</div>
+<div id="modal-remove" class="modal">
+    <form action="/remove_story" method="get">
+        <input type="hidden" name="story_id" id="remove-which">
+        <div class="modal-content">
+            <h4>Remove story</h4>
+            <p>Are you sure you want to remove this story?</p>
+            <div class="divider"></div>
+            <p id="modal-remove-preview"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="modal-action waves-effect waves-red btn-flat">Confirm</button>
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+        </div>
+    </form>
+</div>

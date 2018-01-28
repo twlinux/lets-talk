@@ -12,6 +12,7 @@ Server returns ALL results from query as JSON
 
 - load more stories
 - AJAX refresh stories
+- FAB
 - loading bar
 - profile pictures
 - picture upload

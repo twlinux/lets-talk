@@ -1,33 +1,32 @@
-// TODO jump to top FAB
-
 $(document).ready(function () {
 
-    materializeInit();
+    $('.button-collapse').sideNav();
 
-    let message = Cookies.get('message');
-    if (message) {
+    $('#all-modals').load('/components/modal.html', function () {
+        $(this).ready(function () {
+            $('.modal').modal({
+                dismissible: true
+            });
+            let message = Cookies.get('message');
+            if (message) {
 
-        message = JSON.parse(message);
-        $('#modal-message-title').text(message.title);
-        $('#modal-message-body').text(message.content);
-        $('#modal-message').modal('open');
-        Cookies.remove('message');
-    }
+                message = JSON.parse(message);
+                $('#modal-message-title').text(message.title);
+                $('#modal-message-body').text(message.content);
+                $('#modal-message').modal('open');
+                Cookies.remove('message');
+            }
+        });
+    });
 
     if (Cookies.get('session'))
         activeSession();
     else
         guest();
 
+    // TODO load stories by a single person
     loadStories();
 });
-
-function materializeInit() {
-    $('.button-collapse').sideNav();
-    $('.modal').modal({
-        dismissible: true
-    });
-}
 
 function guest() {
 
