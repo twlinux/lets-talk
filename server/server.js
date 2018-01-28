@@ -1,5 +1,6 @@
 const ip = require('ip');
 const colors = require('colors');
+const moment = require('moment');
 const express = require('express');
 const app = express();
 app.use(require('cookie-parser')());
@@ -233,6 +234,7 @@ function sqlOK(mysql) {
                 let name = loggedIn(req.cookies.session);
                 if (loggedIn) {
                     results = results.map(story => {
+                        story['prettyDate'] = moment(story['PostDate']).format('MMM Do, YYYY [at] HH:mm:ss'); // who cares about timezone
                         if (story['Author'] === name)
                             story['own'] = true;
                         return story;
@@ -431,8 +433,7 @@ function output(req, info, result) {
     else if (result === true)
         result = colors.green('Successful!');
 
-    let date = new Date();
-    console.log(colors.dim(`[  ${date.getHours()}:${date.getMinutes()} ${date.getSeconds()} ]`)
+    console.log(colors.dim(`[ ${moment().format('HH:mm:ss')} ]`)
         + ` ${req.ip} ${colors.italic(req.originalUrl)}: ${request} ${result}`);
 }
 
