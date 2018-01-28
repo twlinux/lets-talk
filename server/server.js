@@ -367,7 +367,6 @@ function sqlOK(mysql) {
             });
     });
 
-    // TODO test this
     app.get('/delete_account', function (req, res) {
 
         let sessionID = parseInt(req.cookies.session);
@@ -381,13 +380,13 @@ function sqlOK(mysql) {
             return res.sendStatus(401);
         }
         output(req);
-        sql.query('DELETE FROM Story WHERE Author=?', [name], (error, results) => {
+        mysql.query('DELETE FROM Story WHERE Author=?', [name], (error, results) => {
             if (error)
                 console.log(error);
             else
                 console.log(`Deleted ${results.affectedRows} stories WHERE Author=${name}`);
         });
-        sql.query('DELETE FROM People WHERE User_name=?', [name], (error, results) => {
+        mysql.query('DELETE FROM People WHERE User_name=?', [name], (error, results) => {
             if (error) {
                 console.log(error);
                 res.sendStatus(500);
