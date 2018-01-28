@@ -2,24 +2,43 @@
     #user-panel li {
         margin-top: 30px;
     }
+
+    #personal {
+        line-height: initial;
+    }
+
+    #note {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #note-button {
+        text-align: right;
+    }
+
+    #note-button>* {
+        margin-right: 30px;
+    }
 </style>
 
 <li>
     <h5 class="side-heading">Account options</h5>
 
     <div class="collection">
-        <a class="collection-item waves-effect waves-red red-text text-darken-4" id="change-password">Change password</a>
-        <a href="/logout" class="collection-item waves-effect waves-red green-text text-darken-4">Log out</a>
-        <!-- TODO delete account-->
+        <a class="collection-item waves-effect waves-red red-text text-darken-3" id="change-password">Change password</a>
+        <a class="collection-item waves-effect waves-red red-text text-darken-4" id="delete-account">Delete account</a>
+        <a href="/logout" class="collection-item waves-effect waves-red orange-text text-darken-4">Log out</a>
     </div>
 </li>
 
 <li>
     <h5 class="side-heading">Personal note</h5>
-    <p>
-        <strong>TODO</strong>
+    <p id="#personal">
+        <form action="/change_note" method="post">
+            <textarea id="note" class="materialize-textarea" name="note" placeholder="A small note to yourself!" required disabled></textarea>
+            <div id="note-button">
+                <a class="waves-effect waves-light btn" id="edit-note">Edit note</a>
+            </div>
+        </form>
     </p>
-    <div style="text-align: right;">
-        <a class="waves-effect waves-light btn" id="edit-bio" style="margin-right: 30px;" disabled>Edit Bio</a>
-    </div>
 </li>

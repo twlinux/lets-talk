@@ -1,7 +1,7 @@
 CREATE TABLE People (
     User_name  varchar(32)    NOT NULL,
     Pass       varchar(255)   NOT NULL,
-    Bio        varchar(4095),
+    Note       varchar(4095),
     PRIMARY KEY (User_name)
 );
 
@@ -13,7 +13,7 @@ CREATE TABLE Story (
     PRIMARY KEY (ID)
 );
 
-INSERT INTO People (User_name, Pass, Bio)
+INSERT INTO People (User_name, Pass, Note)
 VALUES ('Jennings Zhang', 'tanIg3', 'I can eat a whole pizza in one sitting.');
 INSERT INTO People (User_name, Pass)
 VALUES ('Caroline Reynolds', 'vocOt3');

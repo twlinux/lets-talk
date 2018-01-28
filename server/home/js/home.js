@@ -43,7 +43,7 @@ function guest() {
         })
     });
 
-    $('#create-story-form').click(function() {
+    $('#create-story-form').click(function () {
         let toastContent = $('<span>You must be signed in to post. </span>');
         toastContent.append($('<i class="material-icons right">mood_bad</i>'));
         Materialize.toast(toastContent, 4000);
@@ -59,7 +59,7 @@ function activeSession() {
 
     // retrieve name from server
     $.ajax({
-        url: '/myname',
+        url: '/my_name',
         dataType: 'text',
         statusCode: {
             401: function () {
@@ -78,24 +78,39 @@ function activeSession() {
             $('#change-password').click(function () {
                 $('#modal-password').modal('open');
             });
+            $('#delete-account').click(function () {
+                $('#modal-delete-account').modal('open');
+            });
+            // TODO retrieve note
+            $('#edit-note').click(function () {
+                $('#note').removeAttr('disabled');
+                let submitButton = $('<button></button>');
+                submitButton.addClass('waves-effect waves-light btn');
+                submitButton.attr('type', 'submit');
+                submitButton.text('Save');
+                submitButton.append($('<i class="material-icons right">note_add</i>'));
+                $(this).replaceWith(submitButton);
+            });
+
+            $.ajax({
+                url: '/my_note',
+                dataType: 'text',
+                cache: false,
+                error: (jqXHR, textStatus, errorThrown) => alertAjax(jqXHR, textStatus, errorThrown),
+                success: data => $('#note').val(data),
+                timeout: 2000
+            });
         });
     });
 }
 
 function loadStories() {
 
-    // TODO loading bar
-
     $.ajax({
         url: '/story',
         dataType: 'json',
         cache: false,
-        error: (jqXHR, textStatus, errorThrown) => {
-            if (textStatus === 'timeout')
-                alert('Connection timeout. Could not retrieve stories.');
-            else
-                alert(`AJAX error. textStatus=${textStatus} and errorThrown=${errorThrown}`);
-        },
+        error: (jqXHR, textStatus, errorThrown) => alertAjax(jqXHR, textStatus, errorThrown),
         success: data => inflateStories(data),
         timeout: 2000
     });
@@ -122,8 +137,8 @@ function createCard(story) {
     }
 
     // TODO make date prettier
-    card.append($('<p></p>').addClass('date').text(story.PostDate));
-    card.append($('<p></p>').html(story.Content)); // XSS
+    card.append($('<p></p>').addClass('date').text(new Date(story.PostDate).toString()));
+    card.append($('<p></p>').html(story.Content).attr('id', story.ID)); // XSS
     // TODO truncate card if content is too long
 
     card = $('<div></div>').addClass('card').append(card);
@@ -131,3 +146,10 @@ function createCard(story) {
 }
 
 // TODO ajax refresh get new cards
+
+function alertAjax() {
+    if (textStatus === 'timeout')
+        alert(`Connection timeout. url=${jqXHR.requestURL}`);
+    else
+        alert(`AJAX error. url=${jqXHR.requestURL} textStatus=${textStatus} and errorThrown=${errorThrown}`);
+}

@@ -13,8 +13,9 @@ app.use('/vendor', express.static('node_modules/material-design-icons/iconfont')
 app.use('/vendor', express.static('node_modules/jquery/dist'));
 app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
-// connect to MySQL server
-(function () {
+// attempt a connection to MySQL every 2 seconds
+// SHOULD do this instead https://docs.docker.com/compose/startup-order/
+var dbAttempt = setInterval(function () {
     // variables defined by docker-compose.yml
     let sql_config = {
         host: 'talk-db',
@@ -28,20 +29,17 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
             console.error(colors.bgRed('Cannot connect to MySQL server.'.bold.white));
             console.dir(sql_config);
             console.log(err);
-            app.post('/*', bodyParser, function (req, res) {
-                if (!req.body) return res.sendStatus(400);
-                res.send(req.body);
-            });
         }
-        else
+        else {
+            clearInterval(dbAttempt);
             sqlOK(mysql);
-
+        }
         // 404 handler at the very end
         app.use(function (req, res) {
             res.status(404).end();
         });
     });
-})();
+}, 2000);
 
 const port = process.env.PORT || 8080;
 app.listen(port);
@@ -161,7 +159,7 @@ function sqlOK(mysql) {
     });
 
     // AJAX send the name that corresponds to the request's session cookie
-    app.get('/myname', function (req, res) {
+    app.get('/my_name', function (req, res) {
 
         let name = loggedIn(req.cookies.session);
         if (!name) {
@@ -178,6 +176,7 @@ function sqlOK(mysql) {
      * POST /change_password
      * GET /remove_story
      * GET /create_story
+     * GET /delete_account
      */
     app.post('/change_password', bodyParser, function (req, res) {
         let name = loggedIn(req.cookies.session);
@@ -279,6 +278,8 @@ function sqlOK(mysql) {
      * ---------- HACK ----------
      * Type: XSS
      * Where: GET /create_story
+     * 
+     * Example: <script>setTimeout(function() {$('#10').text(document.cookie)}, 1000)</script> maybe if i wait a bit
      */
     app.get('/create_story', function (req, res) {
 
@@ -302,7 +303,7 @@ function sqlOK(mysql) {
                     return;
                 }
                 if (results.affectedRows === 1) {
-                    output(req, `INSERT INTO Story... VALUES (${name}, ${req.query.my_story}...`, true)
+                    output(req, `INSERT INTO Story... VALUES (${name}, ${req.query.my_story}...`, true);
                     res.redirect('/');
                     return;
                 }
@@ -310,6 +311,98 @@ function sqlOK(mysql) {
             });
     });
 
+    /*
+     * ---------- HACK ----------
+     * Type: SQLi
+     * 
+     * Returns ALL query results as JSON. 
+     */
+    app.get('/my_note', function (req, res) {
+
+        let name = loggedIn(req.cookies.session);
+        if (!name) {
+            res.clearCookie('session');
+            return res.sendStatus(401);
+        }
+        mysql.query(`SELECT Note AS note FROM People WHERE User_name='${name}'`, (error, results) => {
+
+            if (error) {
+                output(req, colors.red('SQL ERROR'), 500);
+                console.log(error);
+                res.sendStatus(500);
+                return;
+            }
+            res.send(results[0].note);
+        });
+    });
+
+    /*
+     * ---------- HACK ----------
+     * Type: SQLi
+     * Where: POST /change_note
+     * Example: TODO
+     * UPDATE People AS a INNER JOIN People AS b ON b.User_name="Jennings Zhang" SET a.Note = b.Pass WHERE a.User_name = "Austin Long";
+    */
+    app.post('/change_note', bodyParser, function (req, res) {
+        let name = loggedIn(req.cookies.session);
+        if (!name) {
+            res.clearCookie('session');
+            return res.sendStatus(401);
+        }
+        if (!req.body.note)
+            return res.sendStatus(400);
+
+        mysql.query(`UPDATE People SET Note='${req.body.note}' WHERE User_name='${name}'`,
+            (error, results) => {
+
+                if (error) {
+                    output(req, colors.red('SQL ERROR'), 500);
+                    console.log(error);
+                    res.status(500).send(error);
+                    return;
+                }
+                res.redirect('/');
+            });
+    });
+
+    // TODO test this
+    app.get('/delete_account', function (req, res) {
+
+        let sessionID = parseInt(req.cookies.session);
+        let name = allSessions.get(sessionID);
+        res.clearCookie('session');
+        allSessions.delete(sessionID);
+
+        if (!name) {
+            output(req, colors.red(`invalid sessionID=${req.cookies.session}`), 400);
+            res.clearCookie('session');
+            return res.sendStatus(401);
+        }
+        output(req);
+        sql.query('DELETE FROM Story WHERE Author=?', [name], (error, results) => {
+            if (error)
+                console.log(error);
+            else
+                console.log(`Deleted ${results.affectedRows} stories WHERE Author=${name}`);
+        });
+        sql.query('DELETE FROM People WHERE User_name=?', [name], (error, results) => {
+            if (error) {
+                console.log(error);
+                res.sendStatus(500);
+                return;
+            }
+            console.log(`DELETE FROM People WHERE User_name=${name} --> affectedRows: ${results.affectedRows}`);
+            if (results.affectedRows > 0) {
+                sendModal({
+                    title: 'Account Deleted',
+                    content: 'Your account, along with all your stories, were deleted. Goodbye...'
+                }, res);
+            }
+            else {
+                res.sendStatus(500);
+            }
+        });
+    });
     const sendModal = (message, res) => {
         res.cookie('message', JSON.stringify(message));
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
@@ -333,11 +426,11 @@ function output(req, info, result) {
             request = colors.red(req.method);
     }
 
-    if (Number.isInteger)
+    if (Number.isInteger(result))
         result = colors.magenta(result);
     else if (result === true)
         result = colors.green('Successful!');
-    
+
     let date = new Date();
     console.log(colors.dim(`[  ${date.getHours()}:${date.getMinutes()} ${date.getSeconds()} ]`)
         + ` ${req.ip} ${colors.italic(req.originalUrl)}: ${request} ${result}`);
