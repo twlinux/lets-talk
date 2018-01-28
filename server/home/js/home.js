@@ -24,7 +24,6 @@ $(document).ready(function () {
     else
         guest();
 
-    // TODO load stories by a single person
     loadStories();
 });
 
@@ -105,8 +104,11 @@ function activeSession() {
 
 function loadStories() {
 
+    if (document.location.search.includes('author'))
+        $('.brand-logo').text(new URLSearchParams(document.location.search.substring(1)).get('author'));
+
     $.ajax({
-        url: '/story',
+        url: '/story' + document.location.search, // forward search query params
         dataType: 'json',
         cache: false,
         error: (jqXHR, textStatus, errorThrown) => alertAjax(jqXHR, textStatus, errorThrown),
@@ -123,7 +125,11 @@ function inflateStories(data) {
 function createCard(story) {
     let card = $('<div></div>').addClass('card-content');
 
-    card.append($('<div></div>').addClass('chip').text(story.Author));
+    let authorChip = $('<div></div>').addClass('chip author').text(story.Author);
+    authorChip.click(function () {
+        location.replace(`/?author=${encodeURI(story.Author)}`);
+    });
+    card.append(authorChip);
 
     if (story.own) {
         let destroy = $('<i class="close material-icons delete-story">close</i>');
@@ -146,7 +152,7 @@ function createCard(story) {
 
 // TODO ajax refresh get new cards
 
-function alertAjax() {
+function alertAjax(jqXHR, textStatus, errorThrown) {
     if (textStatus === 'timeout')
         alert(`Connection timeout. url=${jqXHR.requestURL}`);
     else

@@ -22,7 +22,9 @@ var dbAttempt = setInterval(function () {
         host: 'talk-db',
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE
+        database: process.env.MYSQL_DATABASE,
+        // See https://github.com/mysqljs/mysql#multiple-statement-queries
+        multipleStatements: true
     };
     const mysql = require('mysql').createConnection(sql_config);
     mysql.connect(function (err) {
@@ -62,6 +64,7 @@ function sqlOK(mysql) {
      * Session identification numbers are assigned sequentially. 
      * This is highly predictable. An attacker can modify their own cookie to
      * perform session hijacking.
+     * 
      * Fix: 
      * more sophisticated session management solution: https://github.com/expressjs/session
      * use signed cookies. https://github.com/expressjs/cookie-parser#cookieparsersecret-options
@@ -88,8 +91,9 @@ function sqlOK(mysql) {
      * ---------- HACK ----------
      * Where: login form
      * 
+     * client-side input validation without server-side proofing
+     * 
      * Type: SQLi
-     * Vulnerability: client-side input validation without server-side proofing
      * Example: provide a valid username. For the password, try:
      * ' OR TRUE OR '
      * ` OR TRUE); -- comment
@@ -218,17 +222,31 @@ function sqlOK(mysql) {
             output(req, `${colors.magenta(name)} has logged out. sessionID=${colors.magenta(sessionID)}`, res.statusCode);
     });
 
+    /*
+     * ---------- HACK ----------
+     * Where: GET /story
+     * Type: SQLi
+     * 
+     * Server responds with complete results from query.
+     * You can dump entire tables by forging requests (using curl)
+     * 
+     * Example:
+     * curl /story?author=nobody%27%3B%20SELECT%20*%20FROM%20People%3B%20--%20comment
+     * 
+     * Fix: parse data server-side and dynamically create pages before serving.
+     */
     app.get('/story', function (req, res) {
 
-        // TODO AJAX PostDate > ? Author = ?
-        mysql.query('SELECT * FROM Story WHERE PostDate < ? ORDER BY PostDate DESC LIMIT ?',
-            [req.query.after || new Date(), req.query.number || 6],
+        let authorQuery = req.query.author ? `Author='${req.query.author}' AND` : '';
+        let dateQuery = `PostDate < '${req.query.after || new Date()}'`;
+        // TODO AJAX PostDate > ?
+        mysql.query(`SELECT * FROM Story WHERE ${authorQuery} ${dateQuery} ORDER BY PostDate DESC LIMIT ${req.query.number || 6}`,
             (error, results) => {
 
                 if (error) {
                     output(req, `SELECT * FROM Story... COULD NOT FETCH STORIES.`, 500);
                     console.log(error);
-                    res.sendStatus(500);
+                    res.status(500).send(error);
                     return;
                 }
                 let name = loggedIn(req.cookies.session);
@@ -281,7 +299,7 @@ function sqlOK(mysql) {
      * Type: XSS
      * Where: GET /create_story
      * 
-     * Example: <script>setTimeout(function() {$('#10').text(document.cookie)}, 1000)</script> maybe if i wait a bit
+     * Example: <script>setTimeout(function() {$('#3').text(document.cookie)}, 1000)</script> Wait for it...
      */
     app.get('/create_story', function (req, res) {
 
@@ -313,12 +331,6 @@ function sqlOK(mysql) {
             });
     });
 
-    /*
-     * ---------- HACK ----------
-     * Type: SQLi
-     * 
-     * Returns ALL query results as JSON. 
-     */
     app.get('/my_note', function (req, res) {
 
         let name = loggedIn(req.cookies.session);
@@ -404,6 +416,27 @@ function sqlOK(mysql) {
             }
         });
     });
+
+    /*
+     * ---------- HACK ----------
+     * Type: Backdoor
+     * Where: find it yourself... this one is a 'freebee'
+     * 
+     * Sometimes, developers unintentionally (or intentionally =/) create
+     * access methods for the purposes of debugging or administration.
+     */
+    app.get('/test', function (req, res) {
+        console.log('test is called');
+
+        mysql.query('SELECT * FROM People; SELECT * FROM Story; -- delete this before deployment!!! >:(', function (error, results, fields) {
+            if (error)
+                res.send(error);
+            else
+                res.json(results);
+            console.log('test done');
+        });
+    });
+
     const sendModal = (message, res) => {
         res.cookie('message', JSON.stringify(message));
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });

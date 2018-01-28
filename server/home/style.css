@@ -106,3 +106,10 @@ i.delete-story:hover {
     font-style: italic;
     font-weight: lighter;
 }
+
+.chip.author:hover {
+    cursor: pointer;
+    background-color: var(--green_lighten-3);
+    color: white;
+    transition: .2s;
+}
