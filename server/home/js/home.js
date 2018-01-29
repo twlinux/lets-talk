@@ -1,3 +1,5 @@
+/* global Materialize, Cookies */
+
 $(document).ready(function () {
 
     $('.button-collapse').sideNav();
@@ -38,7 +40,7 @@ function guest() {
             $('#create-password').keyup(function () {
                 $('#retype-password').attr('pattern', $('#create-password').val());
             });
-        })
+        });
     });
 
     $('#create-story-form').click(function () {
@@ -53,7 +55,7 @@ function guest() {
 
 function activeSession() {
 
-    let avatar = $('#avatar-container i').replaceWith($('<img src="/assets/smile.svg" width="200px" />'));
+    $('#avatar-container i').replaceWith($('<img src="/assets/smile.svg" width="200px" />'));
 
     // retrieve name from server
     $.ajax({
@@ -61,7 +63,7 @@ function activeSession() {
         dataType: 'text',
         statusCode: {
             401: function () {
-                document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                 location.reload();
             },
             200: (data) => {
