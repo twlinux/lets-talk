@@ -145,7 +145,7 @@ function createCard(story) {
 
     // TODO make date prettier
     card.append($('<p></p>').addClass('date').text(story.prettyDate));
-    card.append($('<p></p>').html(story.Content).attr('id', story.ID)); // XSS
+    card.append($('<p></p>').html(story.Content).attr('id', story.ID).addClass('story-content')); // XSS
     // TODO truncate card if content is too long
 
     card = $('<div></div>').addClass('card').append(card);
