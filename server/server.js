@@ -417,26 +417,6 @@ function sqlOK(mysql) {
         });
     });
 
-    /*
-     * ---------- HACK ----------
-     * Type: Backdoor
-     * Where: find it yourself... this one is a 'freebee'
-     * 
-     * Sometimes, developers unintentionally (or intentionally =/) create
-     * access methods for the purposes of debugging or administration.
-     */
-    app.get('/test', function (req, res) {
-        console.log('test is called');
-
-        mysql.query('SELECT * FROM People; SELECT * FROM Story; -- delete this before deployment!!! >:(', function (error, results, fields) {
-            if (error)
-                res.send(error);
-            else
-                res.json(results);
-            console.log('test done');
-        });
-    });
-
     const sendModal = (message, res) => {
         res.cookie('message', JSON.stringify(message));
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
