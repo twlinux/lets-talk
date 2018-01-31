@@ -132,10 +132,6 @@ function sqlOK(mysql) {
         });
     });
 
-    /*
-     * ---------- HACK ----------
-     * Passwords are stored in plaintext.
-     */
     app.post('/createuser', bodyParser, function (req, res) {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
 
@@ -232,8 +228,10 @@ function sqlOK(mysql) {
      * 
      * Example:
      * curl /story?author=nobody%27%3B%20SELECT%20*%20FROM%20People%3B%20--%20comment
+     * Passwords are stored in plaintext.
      * 
      * Fix: parse data server-side and dynamically create pages before serving.
+     * Use "hash+salt" solution for password storage.
      */
     app.get('/story', function (req, res) {
 
@@ -299,7 +297,7 @@ function sqlOK(mysql) {
      * Type: XSS
      * Where: GET /create_story
      * 
-     * Example: <script>setTimeout(function() {$('#3').text(document.cookie)}, 1000)</script> Wait for it...
+     * Example: <script>setTimeout(function() {$('#3').text('Thanks Obama')}, 1000)</script> Wait for it...
      */
     app.get('/create_story', function (req, res) {
 
