@@ -128,7 +128,7 @@ function sqlOK(mysql) {
                 }
                 res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
             }
-            output(req, `name=${req.body.name} and pass=${req.body.pass} Logged in!`, res.statusCode);
+            output(req, `name=${req.body.name} and pass=${req.body.pass} ${outcome}`, res.statusCode);
         });
     });
 
