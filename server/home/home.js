@@ -4,7 +4,7 @@ $(document).ready(function () {
 
     $('.button-collapse').sideNav();
 
-    $('#all-modals').load('/components/modal.html', function () {
+    $('#all-modals').load('modal.html', function () {
         $(this).ready(function () {
             $('.modal').modal({
                 dismissible: true
