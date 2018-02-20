@@ -14,39 +14,35 @@ app.use('/vendor', express.static('node_modules/material-design-icons/iconfont')
 app.use('/vendor', express.static('node_modules/jquery/dist'));
 app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
-// attempt a connection to MySQL every 2 seconds
-// SHOULD do this instead https://docs.docker.com/compose/startup-order/
-var dbAttempt = setInterval(() => {
-    // variables defined by docker-compose.yml
-    let sql_config = {
-        host: 'talk-db',
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE,
-        // See https://github.com/mysqljs/mysql#multiple-statement-queries
-        multipleStatements: true
-    };
-    const mysql = require('mysql').createConnection(sql_config);
-    mysql.connect(function (err) {
-        if (err) {
-            console.error(colors.bgRed('Cannot connect to MySQL server.'.bold.white));
-            console.dir(sql_config);
-            console.log(err);
-        }
-        else {
-            clearInterval(dbAttempt);
+// try to connect with MySQL database
+// variables defined by docker-compose.yml
+let sql_config = {
+    host: 'talk-db',
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    // See https://github.com/mysqljs/mysql#multiple-statement-queries
+    multipleStatements: true
+};
+const mysql = require('mysql').createConnection(sql_config);
+mysql.connect(function (err) {
+    if (err) {
+        console.error(colors.bgRed('Cannot connect to MySQL server.'.bold.white));
+        console.dir(sql_config);
+        console.log(err);
+    }
+    else {
 
-            app.listen(process.env.PORT || 8080);
-            console.log('HTTP server is online.');
+        app.listen(process.env.PORT || 8080);
+        console.log('HTTP server is online.');
 
-            sqlOK(mysql);
-        }
-        // 404 handler at the very end
-        app.use(function (req, res) {
-            res.status(404).end();
-        });
+        sqlOK(mysql);
+    }
+    // 404 handler at the very end
+    app.use(function (req, res) {
+        res.status(404).end();
     });
-}, 2000);
+});
 
 // Call this function when connection to MySQL is successful.
 function sqlOK(mysql) {

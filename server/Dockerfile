@@ -16,4 +16,7 @@ RUN npm install --only=production
 
 EXPOSE 8080
 
-CMD ["npm", "start"]
+COPY wait-for-it.sh .
+RUN [ "chmod", "+x", "wait-for-it.sh" ]
+
+CMD [ "npm", "start" ]
