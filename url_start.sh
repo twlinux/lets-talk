@@ -47,11 +47,10 @@ while true; do
   esac
 done
 
-# Check required arguments
-
+db=database/sql
+mkdir $db
 
 if [ "$clean" = "1" ]; then
-  db=database/sql
   sudo rm -r $db
   mkdir $db
   unset db
