@@ -96,7 +96,7 @@ function sqlOK(mysql) {
      * Exploit: https://github.com/twlinux/club/wiki/Man-in-the-Middle-(MitM)-Attack-%E2%80%93-ARP-Poisoning
      * Fix: use HTTPS, hash + salt passwords on client before POST
      */
-    app.post('/login', bodyParser, req, res => {
+    app.post('/login', bodyParser, (req, res) => {
         if (!req.body || !req.body.name || !req.body.pass)
             res.sendStatus(400);
 
