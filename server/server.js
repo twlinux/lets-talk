@@ -16,7 +16,7 @@ app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
 // attempt a connection to MySQL every 2 seconds
 // SHOULD do this instead https://docs.docker.com/compose/startup-order/
-var dbAttempt = setInterval(function () {
+var dbAttempt = setInterval(() => {
     // variables defined by docker-compose.yml
     let sql_config = {
         host: 'talk-db',
@@ -35,6 +35,10 @@ var dbAttempt = setInterval(function () {
         }
         else {
             clearInterval(dbAttempt);
+
+            app.listen(process.env.PORT || 8080);
+            console.log('HTTP server is online.');
+
             sqlOK(mysql);
         }
         // 404 handler at the very end
@@ -43,15 +47,6 @@ var dbAttempt = setInterval(function () {
         });
     });
 }, 2000);
-
-const port = process.env.PORT || 8080;
-app.listen(port);
-(function () {
-    let url = `http://${port == '80' ? `${colors.bold(require('os').hostname())}.local` : `${colors.bold(ip.address())}:${colors.cyan(port.toString())}`}/`;
-    console.log('HTTP server is online.');
-    // console.log(`Server running at ${colors.underline(url)}`);
-    // console.log(`Local: ${colors.underline(`http://localhost:${port}`)}`);
-})();
 
 // Call this function when connection to MySQL is successful.
 function sqlOK(mysql) {
@@ -78,7 +73,7 @@ function sqlOK(mysql) {
         res.cookie('session', nextSession);
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
         return nextSession++;
-        // TODO clear session after timeout?
+        // sessions are indefinite, which isn't a good thing. 
     }
 
     const loggedIn = (sessionID) => {
@@ -136,6 +131,7 @@ function sqlOK(mysql) {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
 
         // use regular expression to validate input
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
         if (!/^[a-zA-Z ]{1,36}$/.test(req.body.name) || !/^[^'\x22]{1,255}$/.test(req.body.pass)) return res.sendStatus(400);
 
         mysql.query('INSERT INTO People (User_name, Pass) VALUES (?, ?)',
@@ -188,7 +184,7 @@ function sqlOK(mysql) {
         }
         mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function (error, results) {
             if (error) {
-                output(req, `UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, colors.red('OOPS'));
+                output(req, `UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, colors.red('UNEXPECTED SQL ERROR. See output below.'));
                 res.sendStatus(500);
                 console.log(error);
                 return;
@@ -200,7 +196,7 @@ function sqlOK(mysql) {
                     res.status(500);
                     let message = `User_name="${name}" changed nothing.`;
                     res.send(message);
-                    output(req, `UPDATE People SET Pass=${req.body.new_password}`, message);
+                    output(req, `UPDATE People SET Pass=${req.body.new_password} WHERE User_name="${name}"`, message);
                 }
                 return;
             }
@@ -215,7 +211,7 @@ function sqlOK(mysql) {
         res.clearCookie('session');
         res.redirect('/');
         if (name && allSessions.delete(sessionID))
-            output(req, `${colors.magenta(name)} has logged out. sessionID=${colors.magenta(sessionID)}`, res.statusCode);
+            output(req, `${colors.green(name)} has logged out. sessionID=${colors.green(sessionID)}`, res.statusCode);
     });
 
     /*
@@ -278,7 +274,7 @@ function sqlOK(mysql) {
             [story_id, name], (error, results) => {
 
                 if (error) {
-                    output(req, colors.red('SQL ERROR'), 500);
+                    output(req, colors.red('UNEXPECTED SQL ERROR'), 500);
                     console.log(error);
                     res.sendStatus(500);
                     return;
@@ -364,11 +360,13 @@ function sqlOK(mysql) {
         if (!req.body.note)
             return res.sendStatus(400);
 
-        mysql.query(`UPDATE People SET Note='${req.body.note}' WHERE User_name='${name}'`,
+        let query = `UPDATE People SET Note='${req.body.note}' WHERE User_name='${name}'`;
+
+        mysql.query(query,
             (error, results) => {
 
                 if (error) {
-                    output(req, colors.red('SQL ERROR'), 500);
+                    output(req, colors.bold(query), 500);
                     console.log(error);
                     res.status(500).send(error);
                     return;
@@ -402,7 +400,6 @@ function sqlOK(mysql) {
                 res.sendStatus(500);
                 return;
             }
-            console.log(`DELETE FROM People WHERE User_name=${name} --> affectedRows: ${results.affectedRows}`);
             if (results.affectedRows > 0) {
                 sendModal({
                     title: 'Account Deleted',
@@ -412,6 +409,7 @@ function sqlOK(mysql) {
             else {
                 res.sendStatus(500);
             }
+            output(req, `DELETE FROM People WHERE User_name=${name} --> affectedRows: ${results.affectedRows}`, res.statusCode);
         });
     });
 
@@ -439,20 +437,10 @@ function output(req, info, result) {
     }
 
     if (Number.isInteger(result))
-        result = colors.magenta(result);
+        result = colors.cyan(result);
     else if (result === true)
         result = colors.green('Successful!');
 
     console.log(colors.dim(`[ ${moment().format('HH:mm:ss')} ]`)
         + ` ${req.ip} ${colors.italic(req.originalUrl)}: ${request} ${result}`);
 }
-
-// npm cleans up connection to MySQL
-process.on('SIGINT', function () {
-    console.log(`${'SIGINT'.underline.red} received, process exiting.`);
-    process.exit();
-});
-process.on('SIGTERM', function () {
-    console.log(`${'SIGTERM'.underline.red} received, process exiting.`);
-    process.exit();
-});

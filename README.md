@@ -35,3 +35,5 @@ Reports are found as multi-line comments in server.js.
 ```bash
 awk '/- HACK/,/\*\//{printf("%-4s%s\n", NR":", $0)}' server/server.js | less -p '^.*HACK.*$'
 ```
+
+Examples at https://twlinux.github.io/

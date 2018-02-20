@@ -31,3 +31,4 @@ services:
       - ./server/server.js:/usr/src/app/server.js
     ports:
       - "${NODE_PORT}:8080"
+    tty: true   # COLORS

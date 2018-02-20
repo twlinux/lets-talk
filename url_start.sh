@@ -1,6 +1,11 @@
 #!/bin/bash -e
 
-mkdir -p database/sql
+if [ "$1" = "--clean" ]; then
+  db=database/sql
+  sudo rm -r $db
+  mkdir $db
+  unset db
+fi
 
 NODE_PORT=${PORT:-8080}
 [[ $NODE_PORT = 80 ]] && disp_port="" || disp_port=":$NODE_PORT"
