@@ -7,8 +7,6 @@ FROM node:carbon
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# sh -c 'echo root:letmein | chpasswd'
-
 WORKDIR /usr/src/app
 
 COPY package*.json ./

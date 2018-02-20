@@ -2,10 +2,13 @@ const ip = require('ip');
 const colors = require('colors');
 const moment = require('moment');
 const express = require('express');
+const sqlModule = require('mysql');
 const app = express();
 app.use(require('cookie-parser')());
 const bodyParser = require('body-parser').urlencoded({ extended: false });
 
+
+// mount points for static assets
 app.use('/', express.static('home'));
 app.use('/assets', express.static('assets'));
 app.use('/vendor', express.static('vendor'));
@@ -15,7 +18,6 @@ app.use('/vendor', express.static('node_modules/jquery/dist'));
 app.use('/vendor', express.static('node_modules/js-cookie/src'));
 
 // try to connect with MySQL database
-// variables defined by docker-compose.yml
 let sql_config = {
     host: 'talk-db',
     user: process.env.MYSQL_USER,
@@ -24,22 +26,21 @@ let sql_config = {
     // See https://github.com/mysqljs/mysql#multiple-statement-queries
     multipleStatements: true
 };
-const mysql = require('mysql').createConnection(sql_config);
-mysql.connect(function (err) {
+const mysql = sqlModule.createConnection(sql_config);
+mysql.connect(err => {
     if (err) {
         console.error(colors.bgRed('Cannot connect to MySQL server.'.bold.white));
         console.dir(sql_config);
         console.log(err);
     }
     else {
-
         app.listen(process.env.PORT || 8080);
         console.log('HTTP server is online.');
 
         sqlOK(mysql);
     }
     // 404 handler at the very end
-    app.use(function (req, res) {
+    app.use((req, res) => {
         res.status(404).end();
     });
 });
@@ -95,18 +96,18 @@ function sqlOK(mysql) {
      * Exploit: https://github.com/twlinux/club/wiki/Man-in-the-Middle-(MitM)-Attack-%E2%80%93-ARP-Poisoning
      * Fix: use HTTPS, hash + salt passwords on client before POST
      */
-    app.post('/login', bodyParser, function (req, res) {
+    app.post('/login', bodyParser, req, res => {
         if (!req.body || !req.body.name || !req.body.pass)
             res.sendStatus(400);
 
         let query = `SELECT User_name AS name FROM People WHERE LOWER(User_name)='${req.body.name.toLowerCase()}' AND (Pass='${req.body.pass}')`;
 
-        mysql.query(query, function (error, results, fields) {
+        mysql.query(query, (error, results, fields) => {
 
             let outcome = '';
             if (error) {
                 outcome = error.code.bold.bgRed;
-                res.send(JSON.stringify(error)); // respond with error message
+                res.send(JSON.stringify(error));
             }
             else {
                 if (results.length === 0) {
@@ -123,7 +124,7 @@ function sqlOK(mysql) {
         });
     });
 
-    app.post('/createuser', bodyParser, function (req, res) {
+    app.post('/createuser', bodyParser, (req, res) => {
         if (!req.body || !req.body.name || !req.body.pass) return res.sendStatus(400);
 
         // use regular expression to validate input
@@ -131,7 +132,7 @@ function sqlOK(mysql) {
         if (!/^[a-zA-Z ]{1,36}$/.test(req.body.name) || !/^[^'\x22]{1,255}$/.test(req.body.pass)) return res.sendStatus(400);
 
         mysql.query('INSERT INTO People (User_name, Pass) VALUES (?, ?)',
-            [req.body.name, req.body.pass], function (error, results, fields) {
+            [req.body.name, req.body.pass], (error, results, fields) => {
                 if (error) {
                     switch (error.code) {
                         case 'ER_DUP_ENTRY':
@@ -152,7 +153,7 @@ function sqlOK(mysql) {
     });
 
     // AJAX send the name that corresponds to the request's session cookie
-    app.get('/my_name', function (req, res) {
+    app.get('/my_name', (req, res) => {
 
         let name = loggedIn(req.cookies.session);
         if (!name) {
@@ -171,14 +172,16 @@ function sqlOK(mysql) {
      * GET /create_story
      * GET /delete_account
      */
-    app.post('/change_password', bodyParser, function (req, res) {
+    app.post('/change_password', bodyParser, (req, res) => {
+
         let name = loggedIn(req.cookies.session);
         if (!name) {
             output(req, colors.red(`invalid sessionID=${req.cookies.session}`), 400);
             res.clearCookie('session');
             return res.sendStatus(401);
         }
-        mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], function (error, results) {
+
+        mysql.query('UPDATE People SET Pass=? WHERE User_name=?', [req.body.new_password, name], (error, results) => {
             if (error) {
                 output(req, `UPDATE People SET Pass=${req.body.new_password} WHERE User_name=${name}`, colors.red('UNEXPECTED SQL ERROR. See output below.'));
                 res.sendStatus(500);
@@ -201,7 +204,7 @@ function sqlOK(mysql) {
         });
     });
 
-    app.all('/logout', function (req, res) {
+    app.all('/logout', (req, res) => {
         let sessionID = parseInt(req.cookies.session);
         let name = allSessions.get(sessionID);
         res.clearCookie('session');
@@ -225,7 +228,7 @@ function sqlOK(mysql) {
      * Fix: parse data server-side and dynamically create pages before serving.
      * Use "hash+salt" solution for password storage.
      */
-    app.get('/story', function (req, res) {
+    app.get('/story', (req, res) => {
 
         let authorQuery = req.query.author ? `Author='${req.query.author}' AND` : '';
         let dateQuery = `PostDate < '${req.query.after || new Date()}'`;
@@ -252,7 +255,7 @@ function sqlOK(mysql) {
             });
     });
 
-    app.get('/remove_story', function (req, res) {
+    app.get('/remove_story', (req, res) => {
 
         let story_id = parseInt(req.query.story_id);
         if (Number.isNaN(story_id)) {
@@ -291,7 +294,7 @@ function sqlOK(mysql) {
      * 
      * Example: <script>setTimeout(function() {$('#3').text('Thanks Obama')}, 1000)</script> Wait for it...
      */
-    app.get('/create_story', function (req, res) {
+    app.get('/create_story', (req, res) => {
 
         if (!req.query.my_story) {
             output(req, colors.red('my_story is undefined'), 400);
@@ -321,7 +324,7 @@ function sqlOK(mysql) {
             });
     });
 
-    app.get('/my_note', function (req, res) {
+    app.get('/my_note', (req, res) => {
 
         let name = loggedIn(req.cookies.session);
         if (!name) {
@@ -347,7 +350,7 @@ function sqlOK(mysql) {
      * Example: TODO
      * UPDATE People AS a INNER JOIN People AS b ON b.User_name="Jennings Zhang" SET a.Note = b.Pass WHERE a.User_name = "Austin Long";
     */
-    app.post('/change_note', bodyParser, function (req, res) {
+    app.post('/change_note', bodyParser, (req, res) => {
         let name = loggedIn(req.cookies.session);
         if (!name) {
             res.clearCookie('session');
@@ -371,7 +374,7 @@ function sqlOK(mysql) {
             });
     });
 
-    app.get('/delete_account', function (req, res) {
+    app.get('/delete_account', (req, res) => {
 
         let sessionID = parseInt(req.cookies.session);
         let name = allSessions.get(sessionID);
