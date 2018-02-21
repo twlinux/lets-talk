@@ -31,5 +31,5 @@ services:
       - ./server/vendor:/usr/src/app/vendor
       - ./server/server.js:/usr/src/app/server.js
     ports:
-      - "${NODE_PORT}:8080"
+      - "${PORT}:8080"
     tty: true   # COLORS

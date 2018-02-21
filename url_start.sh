@@ -75,4 +75,4 @@ printf "%-${space}s%s\n" "${dim}Local:${reset}" "${bold}${underline}${prefix}loc
 printf "%-${space}s%s\n" "${dim}Avahi mDNS:${reset}" "${bold}${underline}${prefix}$(hostname).local${disp_port}/${reset}"
 printf "%-${space}s%s\n" "${dim}Private IP (LAN):${reset}" "${bold}${underline}${prefix}${private_ip}${disp_port}/${reset}"
 
-NODE_PORT=$NODE_PORT docker-compose up
+PORT=$NODE_PORT docker-compose up
