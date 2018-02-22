@@ -4,8 +4,8 @@
   "description": "Terrible web forum that demonstrates SQLi and XSS",
   "main": "server/server.js",
   "scripts": {
-    "start": "./url_start.sh",
-    "lint": "eslint server"
+    "start": "node server.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
