@@ -49,3 +49,9 @@ Related Wikipedia articles
 - [SQL Injection (SQLi)](https://www.owasp.org/index.php/SQL_Injection)
 - [Cross-Site Request Forgery (CSRF)](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF))
 - [Man in the Middle (MitM)](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)
+
+## Too easy?
+
+- https://google-gruyere.appspot.com/
+- https://github.com/ethicalhack3r/DVWA
+- https://information.rapid7.com/metasploitable-download.html
