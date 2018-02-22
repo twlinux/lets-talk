@@ -19,13 +19,15 @@ Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent
 
 `PORT` must be specified as a shell variable before running `docker-compose up`. (The default HTTP port is 80)
 
-UNIX-compatible environments such as Linux, MacOS, and [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) should take advantage of the wrapper script `url_start.sh`. 
+Linux users (and maybe [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10)) should take advantage of the wrapper script `url_start.sh`.
 
 ```bash
 chmod +x url_start.sh           # executable permission
 ./url_start.sh                  # connect to host port 8080
 sudo PORT=80 ./url_start.sh     # OR connect to host port 80
 ```
+
+If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./url_start.sh --purge`.
 
 ## Vulnerabilities
 
