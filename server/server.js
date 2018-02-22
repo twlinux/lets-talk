@@ -171,6 +171,8 @@ function sqlOK(mysql) {
      * GET /remove_story
      * GET /create_story
      * GET /delete_account
+     * 
+     * https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
      */
     app.post('/change_password', bodyParser, (req, res) => {
 
@@ -293,6 +295,9 @@ function sqlOK(mysql) {
      * Where: GET /create_story
      * 
      * Example: <script>setTimeout(function() {$('#3').text('Thanks Obama')}, 1000)</script> Wait for it...
+     * 
+     * https://twlinux.github.io/2018-02-06-js-payloads/
+     * https://twlinux.github.io/2018-02-18-hijacking/
      */
     app.get('/create_story', (req, res) => {
 
@@ -347,8 +352,11 @@ function sqlOK(mysql) {
      * ---------- HACK ----------
      * Type: SQLi
      * Where: POST /change_note
-     * Example: TODO
-     * UPDATE People AS a INNER JOIN People AS b ON b.User_name="Jennings Zhang" SET a.Note = b.Pass WHERE a.User_name = "Austin Long";
+     * 
+     * Example:
+     * UPDATE People AS a INNER JOIN People AS b 
+     * ON b.User_name="Jennings Zhang"
+     * SET a.Note = b.Pass WHERE a.User_name = "Austin Long";
     */
     app.post('/change_note', bodyParser, (req, res) => {
         let name = loggedIn(req.cookies.session);
