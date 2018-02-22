@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #   Use this script to test if a given TCP host/port are available
-# https://github.com/vishnubob/wait-for-it/blob/master/LICENSE
+#   https://github.com/vishnubob/wait-for-it/blob/master/LICENSE
 
 cmdname=$(basename $0)
 

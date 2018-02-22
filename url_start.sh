@@ -1,54 +1,41 @@
 #!/bin/bash -e
 
-# Define help function
 function help () {
-  echo "url_start.sh - Wrapper for launching the \"Let's Talk!\" application with docker-compose"
-  echo "Usage example:"
-  echo "./url_start.sh [(-h|--help)] [(-c|--clean)] [(-i|--interface) string]"
-  echo "Options:"
-  echo "-h or --help: Displays this information."
-  echo "-c or --clean: Purge MySQL database before starting."
-  echo "-i or --interface string: Network device interface name."
-  exit 1
+  cat << EOF
+usage: ./url_start.sh [--help] [--purge] [--interfacce NIC]
+
+Wrapper script for launching the "Let's Talk!" application with docker-compose on Linux.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p, --purge           delete the MySQL database before starting, a new one will be created.
+  -i, --interface NIC   specify the network interface for private IP address (default: enp3s0)
+EOF
+  exit
 }
 
-# Declare vars. Flags initalizing to 0.
 clean=0;
+interface=enp3s0
 
-# Execute getopt
-ARGS=$(getopt -o "hci:" -l "help,clean,interface:" -n "url_start.sh" -- "$@");
+ARGS=$(getopt -o "hpi:" -l "help,purge,interface:" -n "url_start.sh" -- "$@")
 
-#Bad arguments
 if [ $? -ne 0 ];
 then
-  help;
+  help
 fi
 
 eval set -- "$ARGS";
 
 while true; do
   case "$1" in
-    -h|--help)
-      shift;
-      help;
-      ;;
-    -c|--clean)
-      shift;
-          clean="1";
-      ;;
-    -i|--interface)
-      shift;
-          if [ -n "$1" ]; 
-          then
-            interface="$1";
-            shift;
-          fi
-      ;;
-
-    --)
-      shift;
-      break;
-      ;;
+    -h | --help )       shift; help      ;;
+    -p | --purge )      shift; clean="1" ;;
+    -i | --interface )  shift;
+      if [ -n "$1" ]; then
+        interface="$1"
+        shift
+      fi                                 ;;
+    -- )                shift; break;    ;;
   esac
 done
 
@@ -63,12 +50,9 @@ if [ "$clean" = "1" ]; then
   set +x
 fi
 
-unset db
-
 NODE_PORT=${PORT:-8080}
 [[ $NODE_PORT = 80 ]] && disp_port="" || disp_port=":$NODE_PORT"
 
-interface=${interface:-"enp3s0"}
 private_ip=$(ip addr show $interface | awk '/inet / {sub(/\/.*/, "", $2); print $2}')
 
 dim=$'\e[2m'
@@ -77,15 +61,15 @@ bold=$'\e[1m'
 underline=$'\e[4m'
 
 space=28
+strf="%-${space}s%s\n"
 
 prefix='http://'
 
-printf "%-${space}s%s\n" "${dim}Local:${reset}" "${bold}${underline}${prefix}localhost${disp_port}/${reset}"
-
+printf $strf "${dim}Local:${reset}" "${bold}${underline}${prefix}localhost${disp_port}/${reset}"
 systemctl is-active --quiet avahi-daemon && \
-printf "%-${space}s%s\n" "${dim}Avahi mDNS:${reset}" "${bold}${underline}${prefix}$(hostname).local${disp_port}/${reset}"
-
-printf "%-${space}s%s\n" "${dim}Private IP (LAN):${reset}" "${bold}${underline}${prefix}${private_ip}${disp_port}/${reset}"
+printf $strf "${dim}Avahi mDNS:${reset}" "${bold}${underline}${prefix}$(hostname).local${disp_port}/${reset}"
+[[ $private_ip == *.*.*.* ]] && \
+printf $strf "${dim}Private IP (LAN):${reset}" "${bold}${underline}${prefix}${private_ip}${disp_port}/${reset}"
 
 
 set +e

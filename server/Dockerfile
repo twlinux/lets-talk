@@ -5,7 +5,6 @@ FROM node:carbon
 # https://serverfault.com/a/683651
 
 ENV TZ=America/New_York
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /usr/src/app
 
