@@ -93,7 +93,7 @@ function sqlOK(mysql) {
      * Type: MitM
      * Vulnerability: unencrypted transmission of credentials
      * Exploit: https://github.com/twlinux/club/wiki/Man-in-the-Middle-(MitM)-Attack-%E2%80%93-ARP-Poisoning
-     * Fix: use HTTPS, hash + salt passwords on client before POST
+     * Fix: use HTTPS, encrypt passwords before sending them over POST
      */
     app.post('/login', bodyParser, (req, res) => {
         if (!req.body || !req.body.name || !req.body.pass)
@@ -228,6 +228,9 @@ function sqlOK(mysql) {
      *
      * Fix: parse data server-side and dynamically create pages before serving.
      * Use "hash+salt" solution for password storage.
+     * 
+     * Hashed passwords are generally safe, but not undefeatable.
+     * https://github.com/twlinux/club/wiki/hashcat
      */
     app.get('/story', (req, res) => {
 
