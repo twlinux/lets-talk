@@ -1,21 +1,22 @@
 #!/bin/bash -e
 
 # Define help function
-function help(){
-  echo "lets-talk - script to start lets-talk";
-  echo "Usage example:";
-  echo "lets-talk [(-c|--clean)] [(-i|--interface) string]";
-  echo "Options:";
-  echo "-c or --clean: delete the database before starting MySQL.";
-  echo "-i or --interface string: network interface name.";
-  exit 1;
+function help () {
+  echo "url_start.sh - Wrapper for launching the \"Let's Talk!\" application with docker-compose"
+  echo "Usage example:"
+  echo "./url_start.sh [(-h|--help)] [(-c|--clean)] [(-i|--interface) string]"
+  echo "Options:"
+  echo "-h or --help: Displays this information."
+  echo "-c or --clean: Purge MySQL database before starting."
+  echo "-i or --interface string: Network device interface name."
+  exit 1
 }
 
 # Declare vars. Flags initalizing to 0.
 clean=0;
 
 # Execute getopt
-ARGS=$(getopt -o "ci:" -l "clean,interface:" -n "lets-talk" -- "$@");
+ARGS=$(getopt -o "hci:" -l "help,clean,interface:" -n "url_start.sh" -- "$@");
 
 #Bad arguments
 if [ $? -ne 0 ];
@@ -27,6 +28,10 @@ eval set -- "$ARGS";
 
 while true; do
   case "$1" in
+    -h|--help)
+      shift;
+      help;
+      ;;
     -c|--clean)
       shift;
           clean="1";
@@ -47,14 +52,18 @@ while true; do
   esac
 done
 
+
 db=database/sql
-mkdir $db
+mkdir -p $db
 
 if [ "$clean" = "1" ]; then
+  set -x
   sudo rm -r $db
   mkdir $db
-  unset db
+  set +x
 fi
+
+unset db
 
 NODE_PORT=${PORT:-8080}
 [[ $NODE_PORT = 80 ]] && disp_port="" || disp_port=":$NODE_PORT"
@@ -72,7 +81,19 @@ space=28
 prefix='http://'
 
 printf "%-${space}s%s\n" "${dim}Local:${reset}" "${bold}${underline}${prefix}localhost${disp_port}/${reset}"
+
+systemctl is-active --quiet avahi-daemon && \
 printf "%-${space}s%s\n" "${dim}Avahi mDNS:${reset}" "${bold}${underline}${prefix}$(hostname).local${disp_port}/${reset}"
+
 printf "%-${space}s%s\n" "${dim}Private IP (LAN):${reset}" "${bold}${underline}${prefix}${private_ip}${disp_port}/${reset}"
+
+
+set +e
+systemctl is-active --quiet docker
+if [ "$?" -ne "0" ]; then
+  set -x
+  systemctl start docker
+  set +x
+fi
 
 PORT=$NODE_PORT docker-compose up
