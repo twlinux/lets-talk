@@ -10,9 +10,6 @@ services:
       - "3306"
     volumes:
       - type: bind
-        source: ./database/my.cnf
-        target: /etc/my.cnf
-      - type: bind
         source: ./database/sql/
         target: /var/lib/mysql
       - type: bind
