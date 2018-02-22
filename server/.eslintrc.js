@@ -7,17 +7,9 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "rules": {
-        "indent": [
-            "warn",
-            4
-        ],
         "linebreak-style": [
             "error",
             "unix"
-        ],
-        "quotes": [
-            "warn",
-            "single"
         ],
         "semi": [
             "warn",
@@ -25,6 +17,6 @@ module.exports = {
         ],
         "no-console": "off",
         "no-fallthrough": "off",
-        "no-unused-vars": "warn"
+        "no-unused-vars": "warn",
     }
 };

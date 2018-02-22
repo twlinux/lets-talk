@@ -2,10 +2,10 @@
   "name": "lets-talk",
   "version": "1.0.0",
   "description": "Terrible web forum that demonstrates SQLi and XSS",
-  "main": "server.js",
+  "main": "server/server.js",
   "scripts": {
-    "test": "node server.js",
-    "start": "node server.js"
+    "start": "./url_start.sh",
+    "lint": "eslint server"
   },
   "repository": {
     "type": "git",
@@ -22,8 +22,7 @@
     "colors": "^1.1.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
-    "ip": "^1.1.5",
-    "jquery": "^3.2.1",
+    "jquery": "^3.3.1",
     "js-cookie": "^2.2.0",
     "material-design-icons": "^3.0.1",
     "materialize-css": "^0.100.2",
@@ -31,6 +30,6 @@
     "mysql": "^2.15.0"
   },
   "devDependencies": {
-    "eslint": "^4.15.0"
+    "eslint": "^4.18.1"
   }
 }

@@ -1,4 +1,3 @@
-const ip = require('ip');
 const colors = require('colors');
 const moment = require('moment');
 const express = require('express');
@@ -52,12 +51,12 @@ function sqlOK(mysql) {
     /*
      * ---------- HACK ----------
      * Session management
-     * 
-     * Session identification numbers are assigned sequentially. 
+     *
+     * Session identification numbers are assigned sequentially.
      * This is highly predictable. An attacker can modify their own cookie to
      * perform session hijacking.
-     * 
-     * Fix: 
+     *
+     * Fix:
      * more sophisticated session management solution: https://github.com/expressjs/session
      * use signed cookies. https://github.com/expressjs/cookie-parser#cookieparsersecret-options
      * Associate cookie with client's IP address.
@@ -70,27 +69,27 @@ function sqlOK(mysql) {
         res.cookie('session', nextSession);
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
         return nextSession++;
-        // sessions are indefinite, which isn't a good thing. 
-    }
+        // sessions are indefinite, which isn't a good thing.
+    };
 
     const loggedIn = (sessionID) => {
         if (!sessionID)
             return null;
         return allSessions.get(parseInt(sessionID));
-    }
+    };
 
     /*
      * ---------- HACK ----------
      * Where: login form
-     * 
+     *
      * client-side input validation without server-side proofing
-     * 
+     *
      * Type: SQLi
      * Example: provide a valid username. For the password, try:
      * ' OR TRUE OR '
      * ` OR TRUE); -- comment
      * Fix: use SQL prepared statements.
-     * 
+     *
      * Type: MitM
      * Vulnerability: unencrypted transmission of credentials
      * Exploit: https://github.com/twlinux/club/wiki/Man-in-the-Middle-(MitM)-Attack-%E2%80%93-ARP-Poisoning
@@ -102,7 +101,7 @@ function sqlOK(mysql) {
 
         let query = `SELECT User_name AS name FROM People WHERE LOWER(User_name)='${req.body.name.toLowerCase()}' AND (Pass='${req.body.pass}')`;
 
-        mysql.query(query, (error, results, fields) => {
+        mysql.query(query, (error, results) => {
 
             let outcome = '';
             if (error) {
@@ -132,17 +131,17 @@ function sqlOK(mysql) {
         if (!/^[a-zA-Z ]{1,36}$/.test(req.body.name) || !/^[^'\x22]{1,255}$/.test(req.body.pass)) return res.sendStatus(400);
 
         mysql.query('INSERT INTO People (User_name, Pass) VALUES (?, ?)',
-            [req.body.name, req.body.pass], (error, results, fields) => {
+            [req.body.name, req.body.pass], error => {
                 if (error) {
                     switch (error.code) {
-                        case 'ER_DUP_ENTRY':
-                            sendModal({ title: 'Name taken', content: 'A user already exists with that name.' }, res);
-                            break;
-                        case 'ER_DATA_TOO_LONG':
-                            res.sendStatus(400);
-                            break;
-                        default:
-                            res.sendStatus(503);
+                    case 'ER_DUP_ENTRY':
+                        sendModal({ title: 'Name taken', content: 'A user already exists with that name.' }, res);
+                        break;
+                    case 'ER_DATA_TOO_LONG':
+                        res.sendStatus(400);
+                        break;
+                    default:
+                        res.sendStatus(503);
                     }
                     output(req, `INSERT INTO People... User_name=${req.body.name}`, colors.red(error.code));
                 }
@@ -166,12 +165,12 @@ function sqlOK(mysql) {
     /*
      * ---------- HACK ----------
      * Type: CSRF
-     * Where: 
+     * Where:
      * POST /change_password
      * GET /remove_story
      * GET /create_story
      * GET /delete_account
-     * 
+     *
      * https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
      */
     app.post('/change_password', bodyParser, (req, res) => {
@@ -219,14 +218,14 @@ function sqlOK(mysql) {
      * ---------- HACK ----------
      * Where: GET /story
      * Type: SQLi
-     * 
+     *
      * Server responds with complete results from query.
      * You can dump entire tables by forging requests (using curl)
-     * 
+     *
      * Example:
      * curl /story?author=nobody%27%3B%20SELECT%20*%20FROM%20People%3B%20--%20comment
      * Passwords are stored in plaintext.
-     * 
+     *
      * Fix: parse data server-side and dynamically create pages before serving.
      * Use "hash+salt" solution for password storage.
      */
@@ -239,7 +238,7 @@ function sqlOK(mysql) {
             (error, results) => {
 
                 if (error) {
-                    output(req, `SELECT * FROM Story... COULD NOT FETCH STORIES.`, 500);
+                    output(req, 'SELECT * FROM Story... COULD NOT FETCH STORIES.', 500);
                     console.log(error);
                     res.status(500).send(error);
                     return;
@@ -293,9 +292,9 @@ function sqlOK(mysql) {
      * ---------- HACK ----------
      * Type: XSS
      * Where: GET /create_story
-     * 
+     *
      * Example: <script>setTimeout(function() {$('#3').text('Thanks Obama')}, 1000)</script> Wait for it...
-     * 
+     *
      * https://twlinux.github.io/2018-02-06-js-payloads/
      * https://twlinux.github.io/2018-02-18-hijacking/
      */
@@ -352,9 +351,9 @@ function sqlOK(mysql) {
      * ---------- HACK ----------
      * Type: SQLi
      * Where: POST /change_note
-     * 
+     *
      * Example:
-     * UPDATE People AS a INNER JOIN People AS b 
+     * UPDATE People AS a INNER JOIN People AS b
      * ON b.User_name="Jennings Zhang"
      * SET a.Note = b.Pass WHERE a.User_name = "Austin Long";
     */
@@ -369,17 +368,16 @@ function sqlOK(mysql) {
 
         let query = `UPDATE People SET Note='${req.body.note}' WHERE User_name='${name}'`;
 
-        mysql.query(query,
-            (error, results) => {
+        mysql.query(query, error => {
 
-                if (error) {
-                    output(req, colors.bold(query), 500);
-                    console.log(error);
-                    res.status(500).send(error);
-                    return;
-                }
-                res.redirect('/');
-            });
+            if (error) {
+                output(req, colors.bold(query), 500);
+                console.log(error);
+                res.status(500).send(error);
+                return;
+            }
+            res.redirect('/');
+        });
     });
 
     app.get('/delete_account', (req, res) => {
@@ -423,7 +421,7 @@ function sqlOK(mysql) {
     const sendModal = (message, res) => {
         res.cookie('message', JSON.stringify(message));
         res.sendFile('cookie_check.html', { root: `${__dirname}/home/` });
-    }
+    };
 }
 
 // output(req, `message`, res.statusCode);
@@ -431,16 +429,16 @@ function output(req, info, result) {
 
     let request;
     switch (req.method) {
-        case 'GET':
-            request = `${colors.green(req.method)} ${info}`;
-            break;
-        case 'POST':
-            request = `${colors.blue(req.method)} ${colors.bold(info)}`;
-            break;
-        case false:
-            request = 'invalid';
-        default:
-            request = colors.red(req.method);
+    case 'GET':
+        request = `${colors.green(req.method)} ${info}`;
+        break;
+    case 'POST':
+        request = `${colors.blue(req.method)} ${colors.bold(info)}`;
+        break;
+    case false:
+        request = 'invalid';
+    default:
+        request = colors.red(req.method);
     }
 
     if (Number.isInteger(result))
