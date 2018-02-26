@@ -19,7 +19,7 @@ Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent
 
 `PORT` must be specified as a shell variable before running `docker-compose up`. (The default HTTP port is 80)
 
-The wrapper script `url_start.sh` makes it easier to launch this application. It should be cross-compatible with UNIX-based operating systems, such as MacOS and Linux.
+The wrapper script `url_start.sh` makes it easier to launch this application. It should be cross-compatible with all UNIX environments, such as MacOS, Linux, and fake Windows shells like GIT shell (MinGW).
 
 ```bash
 chmod +x url_start.sh           # executable permission
