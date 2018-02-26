@@ -1,5 +1,5 @@
 #!/bin/bash
-# TODO docker-compose down -v
+
 function help () {
   cat << EOF
 usage: ./url_start.sh [-h] [-c] [-i NIC]
