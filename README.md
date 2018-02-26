@@ -15,13 +15,11 @@
 
 ## Deployment
 
-### Linux
-
 Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent version of [docker-compose](https://github.com/docker/compose) (v1.12.0+, the one in Ubuntu artful will not work).
 
 `PORT` must be specified as a shell variable before running `docker-compose up`. (The default HTTP port is 80)
 
-Linux users should take advantage of the wrapper script `url_start.sh`.
+The wrapper script `url_start.sh` makes it easier to launch this application. It should be cross-compatible with UNIX-based operating systems, such as MacOS and Linux.
 
 ```bash
 chmod +x url_start.sh           # executable permission
@@ -29,7 +27,7 @@ chmod +x url_start.sh           # executable permission
 sudo PORT=80 ./url_start.sh     # OR connect to host port 80
 ```
 
-If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./url_start.sh --purge`.
+If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./url_start.sh -c`.
 
 ### Windows
 
