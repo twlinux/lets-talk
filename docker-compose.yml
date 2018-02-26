@@ -18,7 +18,6 @@ services:
   express:
     depends_on:
       - "database"
-    command: ["./wait-for-it.sh", "talk-db:3306", "--", "npm", "start"]
     container_name: talk-js
     env_file: database/variables.env
     build: ./server

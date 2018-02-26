@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+# http://wiki.bash-hackers.org/howto/getopts_tutorial
 function help () {
   cat << EOF
 usage: ./url_start.sh [--help] [--purge] [--interfacce NIC]
@@ -68,7 +69,7 @@ prefix='http://'
 printf $strf "${dim}Local:${reset}" "${bold}${underline}${prefix}localhost${disp_port}/${reset}"
 systemctl is-active --quiet avahi-daemon && \
 printf $strf "${dim}Avahi mDNS:${reset}" "${bold}${underline}${prefix}$(hostname).local${disp_port}/${reset}"
-[[ $private_ip == *.*.*.* ]] && \
+[[ $private_ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] && \
 printf $strf "${dim}Private IP (LAN):${reset}" "${bold}${underline}${prefix}${private_ip}${disp_port}/${reset}"
 
 
