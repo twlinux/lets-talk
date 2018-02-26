@@ -4,6 +4,7 @@
 [![GitHub license](https://img.shields.io/github/license/twlinux/lets-talk.svg)](https://github.com/twlinux/lets-talk/blob/master/LICENSE)
 
 *Let's Talk!* is a quick n' dirty web app that demonstrates simple SQL and JavaScript vulnerabilities.
+![Screenshot of the website](screenshots/website.png)
 
 ## Web Stack
 
@@ -28,6 +29,8 @@ sudo PORT=80 ./url_start.sh     # OR connect to host port 80
 ```
 
 If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./url_start.sh -c`.
+
+![Screenshot of the server output](screenshots/output.png)
 
 ### Windows
 
