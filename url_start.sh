@@ -99,7 +99,7 @@ mkdir -p $db
 if [ "$clean" = "1" ]; then
   set -e # quit on failure
   set -x
-  docker-compose down -v
+  PORT=$NODE_PORT docker-compose down -v
   sudo rm -r $db
   mkdir $db
   set +x
