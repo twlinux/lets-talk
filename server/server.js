@@ -60,6 +60,8 @@ function sqlOK(mysql) {
      * more sophisticated session management solution: https://github.com/expressjs/session
      * use signed cookies. https://github.com/expressjs/cookie-parser#cookieparsersecret-options
      * Associate cookie with client's IP address.
+     * 
+     * https:/twlinux.github.io/2018-02-28-moonpig/
      */
     var nextSession = 1;
     var allSessions = new Map();
