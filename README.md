@@ -34,7 +34,7 @@ If you've DOSed the site with XSS, you can reset the database by deleting the `d
 
 ### Windows
 
-The *master* branch is unlikely to run on Windows! The [**win**](https://github.com/twlinux/lets-talk/tree/win#lets-talk) branch is modified to accommodate [Docker bugs](https://github.com/twlinux/lets-talk/tree/win#workarounds).
+See https://github.com/twlinux/lets-talk/wiki/Windows-Setup.
 
 ## Vulnerabilities
 

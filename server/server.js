@@ -395,7 +395,6 @@ function sqlOK(mysql) {
             res.clearCookie('session');
             return res.sendStatus(401);
         }
-        output(req);
         mysql.query('DELETE FROM Story WHERE Author=?', [name], (error, results) => {
             if (error)
                 console.log(error);

@@ -8,12 +8,9 @@ services:
       - "3306" # port available to other docker containers but not host network
     volumes:
       - type: bind
-        source: ./database/sql/
-        target: /var/lib/mysql
-      - type: bind
         source: ./database/scripts/
         target: /docker-entrypoint-initdb.d/
-      - /etc/localtime:/etc/localtime:ro
+      - sqlvolume:/var/lib/mysql
 
   express:
     depends_on:
@@ -21,8 +18,9 @@ services:
     container_name: talk-js
     env_file: database/variables.env
     build: ./server
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
     ports:
       - "${PORT}:8080"
     tty: true   # COLORS
+
+volumes:
+  sqlvolume: 
