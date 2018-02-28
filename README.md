@@ -20,15 +20,15 @@ Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent
 
 `PORT` must be specified as a shell variable before running `docker-compose up`. (The default HTTP port is 80)
 
-The wrapper script `url_start.sh` makes it easier to launch this application. It should be cross-compatible with all UNIX environments, such as MacOS, Linux, and fake Windows shells like GIT shell (MinGW).
+The wrapper script `lets_talk.sh` makes it easier to launch this application. It should be cross-compatible with all UNIX environments, such as MacOS, Linux, and fake Windows shells like GIT shell (MinGW).
 
 ```bash
-chmod +x url_start.sh           # executable permission
-./url_start.sh                  # connect to host port 8080
-sudo PORT=80 ./url_start.sh     # OR connect to host port 80
+chmod +x lets_talk.sh           # executable permission
+./lets_talk.sh                  # connect to host port 8080
+sudo PORT=80 ./lets_talk.sh     # OR connect to host port 80
 ```
 
-If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./url_start.sh -c`.
+If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./lets_talk.sh -c`.
 
 ![Screenshot of the server output](screenshots/output.png)
 

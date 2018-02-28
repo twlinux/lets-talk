@@ -2,7 +2,7 @@
 
 function help () {
   cat << EOF
-usage: ./url_start.sh OR sudo PORt-80 ./url_start.sh
+usage: ./lets_talk.sh OR sudo PORt-80 ./lets_talk.sh
 
 Wrapper script for launching the "Let's Talk!" application with docker-compose.
 Probably cross-compatible with POSIX-compliant shells.
@@ -20,7 +20,7 @@ optional arguments:
   -i NIC  specify the network interface for private IPv4 address. (default: enp3s0)
           Examples: enp3s0, eth0, wlan1, wlp2s0
           Special case: if you are using docker-machine (which is employed by Docker Toolbox),
-          use the keyword "machine" as the parameter. ./url_start.sh -i machine
+          use the keyword "machine" as the parameter. ./lets_talk.sh -i machine
 EOF
 }
 
