@@ -13,7 +13,7 @@ optional arguments:
           This flag doesn't work with Windows.
   -b      (re-)build images.
   -n      don't start the server.
-  -p      prune orphaned docker stuff.
+  -p      prune orphaned docker stuff. (this is an alternative to "-c" on Windows.)
   -d      start server with development configuration (mount server folders instead of copying).
   -w      force use of Windows workarounds.
   -u      ignore detection of Windows + Docker Toolbox, forces regular docker configuration.
@@ -196,7 +196,7 @@ if [ "$build" = "1" ]; then
 fi
 
 if [ "$skip" = "0" ]; then
-
+  [ "$windows" = "off" ] && windows=0
   if [ "$windows" = "0" ]; then
     if [ "$dev" = "1" ]; then
       PORT=$PORT docker-compose --file dev-compose.yml up --abort-on-container-exit
@@ -204,7 +204,7 @@ if [ "$skip" = "0" ]; then
       PORT=$PORT docker-compose up --abort-on-container-exit # run normally
     fi
   else
-    PORT=$PORT docker-compose --file windows-compose.yml up --abort-on-container-exit # TODO test
+    PORT=$PORT docker-compose --file windows-compose.yml up --abort-on-container-exit
   fi
 else
   echo 'The flag "-n" was specified. Exiting now...'

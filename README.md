@@ -24,6 +24,7 @@ The wrapper script `lets_talk.sh` makes it easier to launch this application. It
 
 ```bash
 chmod +x lets_talk.sh           # executable permission
+./lets_talk.sh -h               # show usage flags
 ./lets_talk.sh                  # connect to host port 8080
 sudo PORT=80 ./lets_talk.sh     # OR connect to host port 80
 ```
