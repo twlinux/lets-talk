@@ -118,7 +118,10 @@ fi
 
 info="$info$reset"
 echo $info 1>&2
-unset info warn uname
+
+if [ "$windows" = "off" ]; then windows=0;
+elif [ "$windows" = "on" ]; then windows=1;
+fi
 
 # IP addresses & URLs ===========================
 
@@ -183,6 +186,7 @@ mkdir -p $db
 
 # purge database files if asked to
 if [ "$clean" = "1" ]; then
+  [ "$windows" = "1" ] && echo "$warn this action is useless when used with Windows workarounds."
   set -x
   sudo rm -r $db
   mkdir $db
@@ -196,7 +200,6 @@ if [ "$build" = "1" ]; then
 fi
 
 if [ "$skip" = "0" ]; then
-  [ "$windows" = "off" ] && windows=0
   if [ "$windows" = "0" ]; then
     if [ "$dev" = "1" ]; then
       PORT=$PORT docker-compose --file dev-compose.yml up --abort-on-container-exit
