@@ -16,7 +16,7 @@
 
 ## Deployment
 
-Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent version of [docker-compose](https://github.com/docker/compose) (v1.12.0+, the one in Ubuntu artful will not work).
+Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent version of [docker-compose](https://github.com/docker/compose) (v1.12.0+, the one in Ubuntu artful will not work). On **Windows**, simply install [**Docker Toolbox**](https://docs.docker.com/toolbox/toolbox_install_windows/). This is convenient, because *Toolbox* will install everything you need: the Docker engine, docker-compose, git, and the MINGW shell.
 
 `PORT` must be specified as a shell variable before running `docker-compose up`. (The default HTTP port is 80)
 
@@ -29,13 +29,9 @@ chmod +x lets_talk.sh           # executable permission
 sudo PORT=80 ./lets_talk.sh     # OR connect to host port 80
 ```
 
-If you've DOSed the site with XSS, you can reset the database by deleting the `database/sql` directory. This is also automated by the script: `./lets_talk.sh -c`.
+If you've DOSed the site with XSS, you can reset the database by deleting the `letstalk_database` docker volume. This is facilitated with the script: `./lets_talk.sh -d`.
 
 ![Screenshot of the server output](screenshots/output.png)
-
-### Windows
-
-See https://github.com/twlinux/lets-talk/wiki/Windows-Setup.
 
 ## Vulnerabilities
 
@@ -65,3 +61,5 @@ Related Wikipedia articles
 - https://google-gruyere.appspot.com/
 - https://github.com/ethicalhack3r/DVWA
 - https://information.rapid7.com/metasploitable-download.html
+
+![old man yells at cloud](https://i.redd.it/7cwh3vu6l7bz.jpg)

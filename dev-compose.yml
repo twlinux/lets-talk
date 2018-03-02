@@ -8,11 +8,9 @@ services:
       - "3306" # port available to other docker containers but not host network
     volumes:
       - type: bind
-        source: ./database/sql/
-        target: /var/lib/mysql
-      - type: bind
         source: ./database/scripts/
         target: /docker-entrypoint-initdb.d/
+      - database:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
 
   express:
@@ -32,3 +30,6 @@ services:
     ports:
       - "${PORT}:8080"
     tty: true   # COLORS
+
+volumes:
+  database: 

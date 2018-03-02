@@ -10,7 +10,8 @@ services:
       - type: bind
         source: ./database/scripts/
         target: /docker-entrypoint-initdb.d/
-      - sqlvolume:/var/lib/mysql
+      - database:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
 
   express:
     depends_on:
@@ -18,9 +19,11 @@ services:
     container_name: talk-js
     env_file: database/variables.env
     build: ./server
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - "${PORT}:8080"
     tty: true   # COLORS
 
 volumes:
-  sqlvolume: 
+  database: 
