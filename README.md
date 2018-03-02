@@ -18,7 +18,7 @@
 
 Install [docker](https://www.docker.com/what-container) (v17.04.0+) and a recent version of [docker-compose](https://github.com/docker/compose) (v1.12.0+, the one in Ubuntu artful will not work). On **Windows**, simply install [**Docker Toolbox**](https://docs.docker.com/toolbox/toolbox_install_windows/). This is convenient, because *Toolbox* will install everything you need: the Docker engine, docker-compose, git, and the MINGW shell.
 
-`PORT` must be specified as a shell variable before running `docker-compose up`. (The default HTTP port is 80)
+Clone this repository: `git clone https://github.com/twlinux/lets-talk.git && cd lets-talk`.
 
 The wrapper script `lets_talk.sh` makes it easier to launch this application. It should be cross-compatible with all UNIX environments, such as MacOS, Linux, and fake Windows shells like GIT shell (MinGW).
 
