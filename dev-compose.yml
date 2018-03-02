@@ -20,8 +20,14 @@ services:
       - "database"
     container_name: talk-js
     env_file: database/variables.env
-    build: ./server
+    build: 
+      context: ./server
+      dockerfile: Dockerfile-dev
     volumes:
+      - ./server/assets:/usr/src/app/assets
+      - ./server/home:/usr/src/app/home
+      - ./server/vendor:/usr/src/app/vendor
+      - ./server/server.js:/usr/src/app/server.js
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "${PORT}:8080"
