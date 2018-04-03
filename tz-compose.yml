@@ -7,9 +7,7 @@ services:
     expose:
       - "3306" # port available to other docker containers but not host network
     volumes:
-      - type: bind
-        source: ./database/scripts/
-        target: /docker-entrypoint-initdb.d/
+      - ./database/scripts/:/docker-entrypoint-initdb.d/:Z # Z access mode - use private unshared label to accommodate for SELinux polcy
       - database:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
 
