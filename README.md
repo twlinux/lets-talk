@@ -37,6 +37,10 @@ If you've DOSed the site with XSS, you can reset the database by deleting the `l
 
 ![Screenshot of the server output](screenshots/output.png)
 
+### mysql:latest error
+
+If you are getting `mbind: Operation not permitted`, edit the compose files to use `mysql:5.7` instead.
+
 ## Vulnerabilities
 
 *(that I know of)*
