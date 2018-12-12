@@ -2,7 +2,7 @@ version: '3.2'
 services:
   database:
     container_name: talk-db
-    image: mysql/mysql-server:latest
+    image: mysql/mysql-server:5.7
     env_file: database/variables.env
     expose:
       - "3306" # port available to other docker containers but not host network
